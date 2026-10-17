@@ -1,0 +1,597 @@
+{
+  "news": [
+    {
+      "id": "n1",
+      "t": "Mustaqillik bayramiga bag'ishlangan konsert",
+      "c": "tadbir",
+      "d": "2026-08-30",
+      "g": "Bayram!",
+      "s": "Maktab hovlisida o'quvchilarimiz qo'shiq, raqs va she'rlar bilan chiqish qilishdi.",
+      "full": "Mustaqillik kuni munosabati bilan maktabimizda katta bayram konserti bo'lib o'tdi. 1–11-sinf o'quvchilari milliy raqslar, qo'shiqlar va she'rlar bilan chiqish qildi. Tadbirda ota-onalar va mahalla faollari ham ishtirok etdi.",
+      "soon": false,
+      "img": null,
+      "more": {}
+    },
+    {
+      "id": "n2",
+      "t": "Tuman olimpiadasida 12 ta sovrin",
+      "c": "olimpiada",
+      "d": "2026-10-10",
+      "g": "12 sovrin",
+      "s": "O'quvchilarimiz matematika, fizika va ingliz tilidan sovrinli o'rinlarni egalladi.",
+      "full": "Yangi hayot tumanida o'tkazilgan fan olimpiadasida maktabimiz o'quvchilari jami 12 ta sovrinli o'rinni qo'lga kiritdi. G'oliblar endi shahar bosqichiga tayyorlanmoqda.",
+      "soon": false,
+      "img": null,
+      "more": {}
+    },
+    {
+      "id": "n3",
+      "t": "Futbol jamoamiz tuman chempioni",
+      "c": "sport",
+      "d": "2026-09-21",
+      "g": "⚽ Chempion",
+      "s": "Maktablar o'rtasidagi turnir finalida jamoamiz 3:1 hisobida g'alaba qozondi.",
+      "full": "Yangi hayot tumani maktablari o'rtasidagi futbol turniri finalida 9–10-sinf o'quvchilaridan iborat jamoamiz 3:1 hisobida g'alaba qozonib, chempionlik kubogini qo'lga kiritdi. Maktab ochilganiga atigi ikki yil bo'lganini hisobga olsak, bu katta yutuq.",
+      "soon": false,
+      "img": null,
+      "more": {
+        "score": {
+          "a": "356-maktab",
+          "b": "48-maktab",
+          "sa": 3,
+          "sb": 1,
+          "note": "Final o'yini"
+        },
+        "info": [
+          [
+            "Musobaqa",
+            "Tuman maktablararo futbol turniri"
+          ],
+          [
+            "Qayerda",
+            "Yangi hayot tumani sport majmuasi stadioni"
+          ],
+          [
+            "Sana",
+            "2026-yil 14–21-sentabr"
+          ],
+          [
+            "Ishtirokchilar",
+            "12 ta maktab jamoasi"
+          ],
+          [
+            "Murabbiy",
+            "Otabek Sobirov"
+          ],
+          [
+            "Sovrin",
+            "Chempionlik kubogi va oltin medallar"
+          ]
+        ],
+        "lists": [
+          {
+            "h": "Turnir yo'li",
+            "items": [
+              "Guruh bosqichi: 3 o'yin, 3 g'alaba",
+              "Chorak final: 356-maktab 2:0 105-maktab",
+              "Yarim final: 356-maktab 1:0 (penaltilar) 210-maktab",
+              "Final: 356-maktab 3:1 48-maktab"
+            ]
+          },
+          {
+            "h": "Finaldagi gollar",
+            "items": [
+              "12' — Azizbek Murodov",
+              "38' — Muhammadali Yo'ldoshev",
+              "61' — 48-maktab",
+              "79' — Azizbek Murodov (penalti)"
+            ]
+          }
+        ],
+        "roster": {
+          "h": "Jamoa tarkibi",
+          "list": [
+            [
+              "1",
+              "Sardor Ismoilov",
+              "Darvozabon · 10-A"
+            ],
+            [
+              "4",
+              "Javohir Qosimov",
+              "Himoyachi · 10-B"
+            ],
+            [
+              "5",
+              "Bobur Rahmonov",
+              "Himoyachi · 9-A"
+            ],
+            [
+              "6",
+              "Ulug'bek Toshev",
+              "Himoyachi · 10-A"
+            ],
+            [
+              "8",
+              "Shohjahon Ergashev",
+              "Yarim himoyachi · 9-B"
+            ],
+            [
+              "10",
+              "Azizbek Murodov",
+              "Sardor, hujumchi · 10-B"
+            ],
+            [
+              "11",
+              "Muhammadali Yo'ldoshev",
+              "Hujumchi · 9-A"
+            ],
+            [
+              "7",
+              "Islom Nurmatov",
+              "Yarim himoyachi · 10-V"
+            ],
+            [
+              "9",
+              "Abdulloh Karimov",
+              "Hujumchi · 9-B"
+            ],
+            [
+              "14",
+              "Doniyor Saidov",
+              "Zaxira · 9-A"
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "id": "n4",
+      "t": "Ota-onalar majlisi — 25-oktabr",
+      "c": "elon",
+      "d": "2026-10-15",
+      "g": "E'lon",
+      "s": "Birinchi chorak natijalari va farzandlaringiz o'qishi haqida suhbat. Soat 17:00 da.",
+      "full": "Hurmatli ota-onalar! 25-oktabr kuni soat 17:00 da maktab majlislar zalida umumiy ota-onalar majlisi bo'lib o'tadi. Ishtirokingiz farzandingizning muvaffaqiyati uchun juda muhim.",
+      "soon": false,
+      "img": null,
+      "more": {
+        "info": [
+          [
+            "Sana",
+            "2026-yil 25-oktabr, shanba"
+          ],
+          [
+            "Vaqt",
+            "17:00 – 18:30"
+          ],
+          [
+            "Joy",
+            "Maktab majlislar zali, 1-qavat"
+          ],
+          [
+            "Kimlar uchun",
+            "1–11-sinf ota-onalari"
+          ]
+        ],
+        "lists": [
+          {
+            "h": "Majlisdan maqsad",
+            "items": [
+              "Ota-onalarni birinchi chorak natijalari bilan tanishtirish",
+              "Maktab va oila hamkorligini mustahkamlash",
+              "Har bir o'quvchining o'qishdagi kuchli va zaif tomonlarini birga muhokama qilish",
+              "Ota-onalarning taklif va savollarini tinglash"
+            ]
+          },
+          {
+            "h": "Nima uchun o'tkazilmoqda",
+            "items": [
+              "Birinchi chorak yakunlandi va baholar chiqarildi",
+              "Noyabrda shahar olimpiadasi bo'ladi, unga tayyorgarlikni muhokama qilish kerak",
+              "Qishki ta'til va ikkinchi chorak rejalari haqida xabar berish",
+              "Robototexnika to'garagi ochilishi va unga yozilish tartibini tushuntirish"
+            ]
+          },
+          {
+            "h": "Kun tartibi",
+            "items": [
+              "17:00 — Direktorning kirish so'zi",
+              "17:15 — Birinchi chorak natijalari (o'quv ishlari bo'yicha direktor o'rinbosari)",
+              "17:40 — Olimpiadaga tayyorgarlik va yangi to'garaklar",
+              "18:00 — Sinf rahbarlari bilan sinflarda alohida suhbat"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "n5",
+      "t": "Ustozlar kuni tantanasi",
+      "c": "tadbir",
+      "d": "2026-10-01",
+      "g": "Rahmat, ustoz!",
+      "s": "O'quvchilar ustozlarini gullar va o'zlari tayyorlagan sovg'alar bilan tabrikladi.",
+      "full": "1-oktabr — O'qituvchi va murabbiylar kuni munosabati bilan maktabimizda tantanali tadbir o'tkazildi. O'quvchilar o'z ustozlariga minnatdorchilik bildirib, sahna ko'rinishlari namoyish etdi.",
+      "soon": false,
+      "img": null,
+      "more": {}
+    },
+    {
+      "id": "n6",
+      "t": "Robototexnika to'garagi tez orada ochiladi",
+      "c": "elon",
+      "d": "2026-10-12",
+      "g": "Tez orada!",
+      "s": "5–9-sinf o'quvchilari uchun yangi to'garak. Robot yasash, dasturlash va musobaqalarga tayyorlanish.",
+      "full": "Maktabimizda tez orada robototexnika to'garagi ochiladi. O'quvchilar o'z qo'llari bilan robot yig'ib, uni dasturlashni o'rganadi va tuman hamda shahar robototexnika musobaqalarida qatnashadi.",
+      "soon": true,
+      "img": null,
+      "more": {
+        "info": [
+          [
+            "Ochilish",
+            "2026-yil noyabr (taxminan)"
+          ],
+          [
+            "Kimlar uchun",
+            "5–9-sinf o'quvchilari"
+          ],
+          [
+            "Mashg'ulotlar",
+            "Haftasiga 2 marta, 15:00 dan"
+          ],
+          [
+            "Joy",
+            "Informatika xonasi, 2-qavat"
+          ],
+          [
+            "Guruh",
+            "15 nafargacha o'quvchi"
+          ],
+          [
+            "Narxi",
+            "Bepul"
+          ]
+        ],
+        "lists": [
+          {
+            "h": "To'garakdan maqsad",
+            "items": [
+              "O'quvchilarga muhandislik va texnik fikrlashni o'rgatish",
+              "Arduino va LEGO Education to'plamlarida robot yig'ish",
+              "Scratch, Python va C++ tillarida robotni dasturlash",
+              "Jamoada ishlash va muammolarni hal qilish ko'nikmasini rivojlantirish",
+              "Tuman, shahar va respublika robototexnika musobaqalarida qatnashish"
+            ]
+          },
+          {
+            "h": "Qanday yozilish mumkin",
+            "items": [
+              "Sinf rahbaringizga murojaat qiling",
+              "Yoki informatika xonasiga kelib ro'yxatdan o'ting",
+              "Joylar soni cheklangan: avval yozilganlar qabul qilinadi"
+            ]
+          }
+        ],
+        "teachers": {
+          "h": "Dars beradigan ustozlar",
+          "list": [
+            {
+              "n": "Sherzod Mirzayev",
+              "r": "Informatika o'qituvchisi · 9 yillik tajriba",
+              "certs": [
+                "Arduino Certified Educator",
+                "LEGO Education Academy",
+                "Python dasturlash (IT Park)"
+              ]
+            },
+            {
+              "n": "Kamola Yunusova",
+              "r": "Fizika va texnologiya o'qituvchisi · 7 yillik tajriba",
+              "certs": [
+                "STEM ta'limi sertifikati",
+                "Robototexnika asoslari (INHA University)",
+                "Elektronika va sxemotexnika"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n7",
+      "t": "Shoxrux — tuman matematika olimpiadasi g'olibi",
+      "c": "olimpiada",
+      "d": "2026-10-17",
+      "g": "1-o'rin",
+      "medal": 1,
+      "who": "Shoxrux",
+      "s": "9-A sinf o'quvchisi Shoxrux tuman matematika olimpiadasida 1-o'rinni egalladi (Sergeli).",
+      "full": "Tabriklaymiz! 9-A sinf o'quvchisi Shoxrux 2026-yilda bo'lib o'tgan tuman matematika olimpiadasida ishtirok etib, faxrli 1-o'rinni qo'lga kiritdi. Musobaqa Sergelida o'tkazildi. Bu natija o'quvchining tinimsiz mehnati va ustozlarining fidoyiligi samarasidir. Maktabimiz jamoasi Shoxruxni va uning ustozlarini chin qalbdan qutlaydi!",
+      "soon": false,
+      "img": null,
+      "more": {
+        "info": [
+          [
+            "O'quvchi",
+            "Shoxrux"
+          ],
+          [
+            "Sinf",
+            "9-A"
+          ],
+          [
+            "Yo'nalish",
+            "Matematika"
+          ],
+          [
+            "Musobaqa",
+            "Tuman matematika olimpiadasi"
+          ],
+          [
+            "Natija",
+            "1-o'rin"
+          ],
+          [
+            "Qayerda o'tdi",
+            "Sergeli"
+          ]
+        ]
+      }
+    }
+  ],
+  "achievements": [
+    {
+      "id": "a1",
+      "n": "Madina Yusupova",
+      "cl": "10-A",
+      "f": "Matematika",
+      "m": 1,
+      "y": 2026,
+      "a": "Shahar olimpiadasi, 1-o'rin",
+      "lv": "Shahar"
+    },
+    {
+      "id": "a2",
+      "n": "Jasur Aliyev",
+      "cl": "11-B",
+      "f": "Fizika",
+      "m": 2,
+      "y": 2026,
+      "a": "Respublika olimpiadasi, 2-o'rin",
+      "lv": "Respublika"
+    },
+    {
+      "id": "a3",
+      "n": "Sevinch Rahimova",
+      "cl": "9-A",
+      "f": "Ingliz tili",
+      "m": 1,
+      "y": 2026,
+      "a": "IELTS 7.5 · tuman tanlovi g'olibi",
+      "lv": "Tuman"
+    },
+    {
+      "id": "a4",
+      "n": "Bekzod Tursunov",
+      "cl": "10-V",
+      "f": "Informatika",
+      "m": 1,
+      "y": 2025,
+      "a": "Dasturlash bo'yicha shahar tanlovi, 1-o'rin",
+      "lv": "Shahar"
+    },
+    {
+      "id": "a5",
+      "n": "Diyorbek Xolmatov",
+      "cl": "8-B",
+      "f": "Sport",
+      "m": 1,
+      "y": 2026,
+      "a": "Kurash bo'yicha shahar chempioni",
+      "lv": "Shahar"
+    },
+    {
+      "id": "a6",
+      "n": "Nilufar Saidova",
+      "cl": "11-A",
+      "f": "Matematika",
+      "m": 3,
+      "y": 2025,
+      "a": "Respublika olimpiadasi, 3-o'rin",
+      "lv": "Respublika"
+    },
+    {
+      "id": "a7",
+      "n": "Asilbek Nazarov",
+      "cl": "9-B",
+      "f": "Fizika",
+      "m": 2,
+      "y": 2025,
+      "a": "Shahar olimpiadasi, 2-o'rin",
+      "lv": "Shahar"
+    },
+    {
+      "id": "a8",
+      "n": "Zarina Ergasheva",
+      "cl": "7-A",
+      "f": "Sport",
+      "m": 2,
+      "y": 2026,
+      "a": "Shaxmat bo'yicha tuman birinchiligi, 2-o'rin",
+      "lv": "Tuman"
+    },
+    {
+      "id": "a9",
+      "photo": null,
+      "n": "Shoxrux",
+      "cl": "9-A",
+      "f": "Matematika",
+      "lv": "Tuman",
+      "comp": "Fan olimpiadasi",
+      "place": "Sergeli",
+      "m": 1,
+      "y": 2026,
+      "a": "Tuman matematika olimpiadasi, 1-o'rin"
+    }
+  ],
+  "teachers": [
+    {
+      "id": "t1",
+      "n": "Gulnora Abdullayeva",
+      "s": "Matematika",
+      "e": 24,
+      "photo": null,
+      "certs": []
+    },
+    {
+      "id": "t2",
+      "n": "Rustam Karimov",
+      "s": "Fizika",
+      "e": 18,
+      "photo": null,
+      "certs": []
+    },
+    {
+      "id": "t3",
+      "n": "Dilnoza Qodirova",
+      "s": "Ingliz tili",
+      "e": 12,
+      "photo": null,
+      "certs": []
+    },
+    {
+      "id": "t4",
+      "n": "Sherzod Mirzayev",
+      "s": "Informatika",
+      "e": 9,
+      "photo": null,
+      "certs": []
+    },
+    {
+      "id": "t5",
+      "n": "Malika Hasanova",
+      "s": "Ona tili",
+      "e": 21,
+      "photo": null,
+      "certs": []
+    },
+    {
+      "id": "t6",
+      "n": "Otabek Sobirov",
+      "s": "Jismoniy tarbiya",
+      "e": 15,
+      "photo": null,
+      "certs": []
+    },
+    {
+      "id": "t7",
+      "n": "Feruza Islomova",
+      "s": "Kimyo",
+      "e": 17,
+      "photo": null,
+      "certs": []
+    },
+    {
+      "id": "t8",
+      "n": "Akmal Rasulov",
+      "s": "Tarix",
+      "e": 20,
+      "photo": null,
+      "certs": []
+    }
+  ],
+  "events": [
+    {
+      "id": "e1",
+      "date": "2026-10-25",
+      "t": "Ota-onalar majlisi",
+      "s": "17:00 · majlislar zali"
+    },
+    {
+      "id": "e2",
+      "date": "2026-11-02",
+      "t": "Shahar olimpiadasi",
+      "s": "Matematika va fizika"
+    },
+    {
+      "id": "e3",
+      "date": "2026-11-10",
+      "t": "Kitobxonlik tanlovi",
+      "s": "5–7-sinflar uchun"
+    }
+  ],
+  "gallery": [
+    {
+      "id": "g1",
+      "t": "Bilimlar kuni",
+      "c": "#c2553d",
+      "k": "w h",
+      "img": null,
+      "at": "2026-10-09T10:00:00Z"
+    },
+    {
+      "id": "g2",
+      "t": "Futbol finali",
+      "c": "#2f7a52",
+      "k": "",
+      "img": null,
+      "at": "2026-10-08T10:00:00Z"
+    },
+    {
+      "id": "g3",
+      "t": "Olimpiada g'oliblari",
+      "c": "#b88a17",
+      "k": "",
+      "img": null,
+      "at": "2026-10-07T10:00:00Z"
+    },
+    {
+      "id": "g4",
+      "t": "Kutubxona",
+      "c": "#6a4c8c",
+      "k": "h",
+      "img": null,
+      "at": "2026-10-06T10:00:00Z"
+    },
+    {
+      "id": "g5",
+      "t": "Ustozlar kuni",
+      "c": "#3c6f86",
+      "k": "",
+      "img": null,
+      "at": "2026-10-05T10:00:00Z"
+    },
+    {
+      "id": "g6",
+      "t": "Robototexnika",
+      "c": "#4f5d2f",
+      "k": "w",
+      "img": null,
+      "at": "2026-10-04T10:00:00Z"
+    },
+    {
+      "id": "g7",
+      "t": "Navro'z bayrami",
+      "c": "#b0679b",
+      "k": "",
+      "img": null,
+      "at": "2026-10-03T10:00:00Z"
+    }
+  ],
+  "messages": [],
+  "settings": {
+    "students": 640,
+    "teachers": 48,
+    "prizes": 37,
+    "founded": 2024,
+    "phone": "+998 (71) 000-00-00",
+    "address": "Toshkent shahri, Yangi hayot tumani, Yangi Darxon mahallasi, 356-maktab",
+    "hours": "Dushanba – Shanba, 08:00 – 18:00",
+    "banner": {
+      "on": false,
+      "text": ""
+    }
+  }
+}

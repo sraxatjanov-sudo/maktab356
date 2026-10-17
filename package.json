@@ -1,0 +1,17 @@
+{
+  "name": "maktab356",
+  "version": "1.0.0",
+  "description": "356-maktab sayti va admin paneli",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "author": "Raxatjanov Shoxrux",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "mongodb": "^6.10.0"
+  }
+}
