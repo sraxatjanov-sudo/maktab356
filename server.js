@@ -60,6 +60,32 @@ function save() {
   return Promise.resolve();
 }
 const newId = () => crypto.randomBytes(8).toString("hex");
+// So'rov raqami: chalkashtiradigan belgilarsiz (0/O, 1/I yo'q), masalan K7M4QX
+const CODE_ABC = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+function newCode() {
+  for (;;) {
+    const b = crypto.randomBytes(6);
+    const c = [...b].map(x => CODE_ABC[x % CODE_ABC.length]).join("");
+    if (!DATA.messages.some(m => m.code === c)) return c;
+  }
+}
+// Bog'lanish ma'lumotini tekshirish va tartibga keltirish
+function cleanContact(type, value) {
+  const v = String(value || "").trim();
+  if (type === "phone") {
+    let d = v.replace(/[^\d+]/g, "");
+    if (/^\d{9}$/.test(d)) d = "+998" + d;          // 901234567 -> +998901234567
+    if (/^998\d{9}$/.test(d)) d = "+" + d;
+    return /^\+?\d{9,15}$/.test(d) ? d : null;
+  }
+  if (type === "telegram") {
+    const u = v.replace(/^(https?:\/\/)?(t\.me|telegram\.me)\//i, "").replace(/^@/, "");
+    return /^[A-Za-z0-9_]{5,32}$/.test(u) ? "@" + u : null;
+  }
+  if (type === "email") return /^[^\s@]{1,64}@[^\s@]{1,190}\.[A-Za-z]{2,}$/.test(v) ? v.toLowerCase() : null;
+  return null;
+}
+const checkTries = new Map(); // ip -> { n, reset }
 
 /* ---------- Kirish (login) ---------- */
 const sessions = new Map(); // token -> amal qilish muddati
@@ -143,12 +169,28 @@ async function api(req, res, parts) {
 
   // Aloqa formasi (hamma yubora oladi)
   if (m === "POST" && a === "messages" && !b) {
-    const { name, who, text } = await readBody(req, 20000);
-    if (!name || !text) return send(res, 400, { error: "Ism va xabar matnini yozing" });
+    const { name, who, text, contactType, contact } = await readBody(req, 20000);
+    if (!String(name || "").trim() || !String(text || "").trim()) return send(res, 400, { error: "Ismingiz va xabaringizni yozing" });
+    const type = ["phone", "telegram", "email"].includes(contactType) ? contactType : null;
+    const cleaned = type ? cleanContact(type, contact) : null;
+    if (!cleaned) return send(res, 400, { error: type === "phone" ? "Telefon raqamini to'g'ri yozing, masalan: +998 90 123 45 67" : type === "telegram" ? "Telegram username'ni to'g'ri yozing, masalan: @aziz_karimov" : type === "email" ? "Gmail manzilini to'g'ri yozing, masalan: aziz@gmail.com" : "Siz bilan qanday bog'lanishimizni tanlang" });
     if (DATA.messages.length >= 1000) DATA.messages.shift();
-    DATA.messages.push({ id: newId(), name: String(name).slice(0, 100), who: String(who || "Boshqa").slice(0, 40), text: String(text).slice(0, 3000), at: new Date().toISOString(), read: false });
+    const code = newCode();
+    DATA.messages.push({ id: newId(), code, name: String(name).trim().slice(0, 100), who: String(who || "Boshqa").slice(0, 40), text: String(text).trim().slice(0, 3000), contactType: type, contact: cleaned, at: new Date().toISOString(), read: false, answer: "", answeredAt: null });
     await save();
-    return send(res, 200, { ok: true });
+    return send(res, 200, { ok: true, code });
+  }
+
+  // Javobni so'rov raqami orqali ko'rish (hamma uchun ochiq, lekin shaxsiy ma'lumot qaytarilmaydi)
+  if (m === "GET" && a === "answer" && b) {
+    const ip = req.socket.remoteAddress, now = Date.now();
+    const t = checkTries.get(ip) || { n: 0, reset: now + 60000 };
+    if (now > t.reset) { t.n = 0; t.reset = now + 60000; }
+    if (++t.n > 20) { checkTries.set(ip, t); return send(res, 429, { error: "Juda ko'p urinish. Bir daqiqadan keyin qayta urinib ko'ring." }); }
+    checkTries.set(ip, t);
+    const msg = DATA.messages.find(x => x.code && x.code === String(b).toUpperCase().replace(/[^A-Z0-9]/g, ""));
+    if (!msg) return send(res, 404, { error: "Bunday so'rov raqami topilmadi. Raqamni tekshirib qayta yozing." });
+    return send(res, 200, { code: msg.code, text: msg.text, at: msg.at, answer: msg.answer || "", answeredAt: msg.answeredAt || null });
   }
 
   // Login
@@ -183,7 +225,16 @@ async function api(req, res, parts) {
   if (a === "messages" && b) {
     const msg = DATA.messages.find(x => x.id === b);
     if (!msg) return send(res, 404, { error: "Xabar topilmadi" });
-    if (m === "PUT") { msg.read = !!(await readBody(req, 2000)).read; await save(); return send(res, 200, msg); }
+    if (m === "PUT") {
+      const body = await readBody(req, 20000);
+      if ("read" in body) msg.read = !!body.read;
+      if ("answer" in body) {
+        msg.answer = String(body.answer || "").trim().slice(0, 3000);
+        msg.answeredAt = msg.answer ? new Date().toISOString() : null;
+        msg.read = true;
+      }
+      await save(); return send(res, 200, msg);
+    }
     if (m === "DELETE") { DATA.messages = DATA.messages.filter(x => x.id !== b); await save(); return send(res, 200, { ok: true }); }
   }
 

@@ -127,6 +127,25 @@ legend{font:600 13px var(--f-display);padding:0 6px}
 .msg .meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:13px;color:var(--ink-soft)}
 .msg .meta b{color:var(--ink);font-size:14.5px}
 .msg p{margin:4px 0 6px;white-space:pre-wrap}
+.msg{gap:8px;padding:18px 20px}
+.msg.answered{background:color-mix(in srgb,#2f7a52 6%,var(--card))}
+.pill.nw{background:var(--marigold);color:#1d1a0e}
+.pill.code{font-variant-numeric:tabular-nums;letter-spacing:.05em}
+.contact-line{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:14.5px}
+.contact-line .sel{user-select:all}
+.qtext{font-size:15.5px;background:var(--paper);border-radius:10px;padding:12px 14px;margin:0!important}
+.given{border-left:3px solid #2f7a52;padding:8px 12px;background:var(--card);border-radius:8px;white-space:pre-wrap}
+.given small{display:block;color:#2f7a52;font-weight:700;margin-bottom:4px}
+.reply{display:grid;gap:8px;margin-top:4px}
+.reply label{font-size:13px;font-weight:700}
+.reply textarea{min-height:80px}
+.ractions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.ractions .sp{flex:1}
+.ractions a.btn{text-decoration:none;color:var(--ink)}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.chip{font:500 14px var(--f-body);padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);cursor:pointer}
+.chip.on{background:var(--board);color:var(--chalk);border-color:var(--board)}
+.chip b{margin-left:4px}
 
 .toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--board);color:var(--chalk);padding:12px 20px;border-radius:999px;font-weight:600;z-index:80;box-shadow:0 10px 30px rgba(0,0,0,.25)}
 .gate{min-height:100%;display:grid;place-items:center;padding:24px}
@@ -230,7 +249,7 @@ async function upload(file){
   return api("POST","/api/upload",{data});
 }
 async function load(){const d=await api("GET","/api/admin/all");["news","achievements","teachers","events","gallery"].forEach(k=>S[k]=d[k]||[]);S.inbox=d.messages||[];S.settings=d.settings||{};
-  if($("#drawer").hidden&&view!=="settings"&&view!=="director"&&view!=="about")render();else renderNav()}
+  if($("#drawer").hidden&&view!=="settings"&&view!=="director"&&view!=="about"&&!(view==="inbox"&&document.activeElement?.classList.contains("ans")))render();else renderNav()}
 const S={news:[],achievements:[],teachers:[],events:[],gallery:[],inbox:[],settings:{}};
 let view="home",search="";
 
@@ -395,7 +414,7 @@ $("#drawer").addEventListener("click",e=>{if(e.target.id==="drawer")closeForm()}
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeForm()});
 
 /* ---------- views ---------- */
-const unread=()=>S.inbox.filter(m=>!m.read).length;
+const unread=()=>S.inbox.filter(m=>!m.answer).length;
 function renderNav(){
   const items=[["home","Bosh sahifa","home"],["news","Yangiliklar","news"],["achievements","Yutuqlar","medal"],["teachers","Ustozlar","teach"],["events","Tadbirlar","cal"],["gallery","Galereya","img"],["about","Maktab haqida","home"],["director","Direktor","teach"],["inbox","Xabarlar","mail"],["settings","Sozlamalar","gear"]];
   const u=unread();
@@ -436,7 +455,19 @@ $("#main").addEventListener("click",e=>{
   const g=e.target.closest("[data-go]");if(g)return go(g.dataset.go);
   const qa=e.target.closest("[data-quick]");if(qa){go(qa.dataset.quick);return openForm(qa.dataset.quick)}
   const rd=e.target.closest("[data-read]");if(rd)return markMsg(rd.dataset.read,+rd.dataset.i,"read");
-  const dl=e.target.closest("[data-mdel]");if(dl)return markMsg(dl.dataset.mdel,+dl.dataset.i,"del");
+  const dl=e.target.closest("[data-mdel]");if(dl){const w=dl.closest("[data-delwrap]");w.innerHTML=`O'chirilsinmi? <button class="btn sm danger" data-mdelyes="${dl.dataset.mdel}">Ha, o'chirish</button><button class="btn sm" data-no="1">Yo'q</button>`;return}
+  const dy=e.target.closest("[data-mdelyes]");if(dy)return markMsg(dy.dataset.mdelyes,0,"del");
+  const tf=e.target.closest("[data-inf]");if(tf){inboxF=tf.dataset.inf;return render()}
+  const cp=e.target.closest("[data-copy]");if(cp){copyText(cp.dataset.copy).then(ok=>toast(ok?"Nusxalandi":"Nusxalab bo'lmadi"));return}
+  const sv=e.target.closest("[data-save]");if(sv)return saveAnswer(sv.dataset.save);
+  const sd=e.target.closest("[data-send]");if(sd){const id=sd.closest("[data-mid]").dataset.mid;
+    if(!$("#ans_"+id).value.trim()){e.preventDefault();toast("Avval javob matnini yozing");$("#ans_"+id).focus();return}
+    const m=S.inbox.find(x=>x.id===id),txt=replyText(m,$("#ans_"+id).value.trim()),kind=sd.dataset.send;
+    if(kind==="mail"){e.preventDefault();location.href=`mailto:${m.contact}?subject=${encodeURIComponent("356-maktab: savolingizga javob")}&body=${encodeURIComponent(txt+"\n\n---\nSizning savolingiz: "+m.text)}`}
+    else if(kind==="sms"){e.preventDefault();location.href=`sms:${m.contact}?body=${encodeURIComponent(txt)}`}
+    else{copyText(txt).then(ok=>toast(ok?"Javob nusxalandi — Telegram'da Ctrl+V bosing":"Javobni qo'lda nusxalang"))}
+    saveAnswer(id,true).then(r=>r&&setTimeout(()=>{if(view==="inbox"&&!document.activeElement?.classList.contains("ans"))render()},1500));
+    return}
 });
 
 function homeView(){
@@ -462,13 +493,50 @@ function homeView(){
   <div class="panel" style="margin-top:18px"><h3>So'nggi yangiliklar</h3>${latest.length?`<table><tbody>${latest.map(x=>`<tr><td><div class="t">${esc(x.t)}</div></td><td><span class="pill">${CAT[x.c]||""}</span></td><td style="white-space:nowrap">${fmt(x.d)}</td></tr>`).join("")}</tbody></table>`:`<div class="empty">Yangilik yo'q</div>`}</div>`;
 }
 
+let inboxF="new";
+const CT_ICON={telegram:"✈️ Telegram",phone:"📞 Telefon",email:"✉️ Gmail"};
+function contactLinks(m){
+  const c=m.contact||"";if(!c)return`<span class="pill">Aloqa ma'lumoti yo'q</span>`;
+  if(m.contactType==="telegram")return`<a class="btn sm" href="https://t.me/${encodeURIComponent(c.replace(/^@/,""))}" target="_blank" rel="noopener" data-send="tg">✈️ Telegram'da yozish</a>`;
+  if(m.contactType==="email")return`<a class="btn sm" href="#" data-send="mail">✉️ Gmail'da javob yozish</a>`;
+  if(m.contactType==="phone")return`<a class="btn sm" href="tel:${esc(c)}">📞 Qo'ng'iroq qilish</a><a class="btn sm" href="#" data-send="sms">💬 SMS yuborish</a><a class="btn sm" href="https://t.me/${esc(c)}" target="_blank" rel="noopener" data-send="tg">✈️ Telegram</a>`;
+  return"";
+}
 function inboxView(){
-  const all=S.inbox.map(m=>({...m,doc:m.id,i:0}));
-  all.sort((a,b)=>(b.at||"").localeCompare(a.at||""));
-  return head("saytdan kelgan","Xabarlar")+`<div class="panel">${all.length?all.map(m=>`<div class="msg ${m.read?"":"new"}"><div class="meta"><b>${esc(m.name)}</b><span class="pill">${esc(m.who)}</span><span>${m.at?new Date(m.at).toLocaleString("uz-UZ"):""}</span></div><p>${esc(m.text)}</p><div style="display:flex;gap:8px">${m.read?"":`<button class="btn sm" data-read="${m.doc}" data-i="${m.i}">O'qildi deb belgilash</button>`}<button class="btn sm danger" data-mdel="${m.doc}" data-i="${m.i}">O'chirish</button></div></div>`).join(""):`<div class="empty"><span class="hand">Xabarlar yo'q</span>Saytdagi "Aloqa" formasi orqali yuborilgan xabarlar shu yerda ko'rinadi.</div>`}</div>`;
+  const all=[...S.inbox].sort((a,b)=>(b.at||"").localeCompare(a.at||""));
+  const cnt={new:all.filter(m=>!m.answer).length,done:all.filter(m=>m.answer).length,all:all.length};
+  const list=all.filter(m=>inboxF==="all"||(inboxF==="new"?!m.answer:!!m.answer));
+  const tabs=`<div class="tabs">${[["new","Javob kutayotgan"],["done","Javob berilgan"],["all","Hammasi"]].map(([k,t])=>`<button class="chip ${inboxF===k?"on":""}" data-inf="${k}">${t} <b>${cnt[k]}</b></button>`).join("")}</div>`;
+  const card=m=>`<div class="msg ${m.read?"":"new"} ${m.answer?"answered":""}" data-mid="${m.id}">
+    <div class="meta"><b>${esc(m.name)}</b><span class="pill">${esc(m.who)}</span>${m.code?`<span class="pill code">№ ${esc(m.code)}</span>`:""}<span>${m.at?new Date(m.at).toLocaleString("uz-UZ"):""}</span>${m.read?"":`<span class="pill nw">Yangi</span>`}</div>
+    <div class="contact-line">${m.contact?`<span class="ct">${CT_ICON[m.contactType]||""}: <b class="sel">${esc(m.contact)}</b></span><button class="btn sm" data-copy="${esc(m.contact)}">Nusxalash</button>`:""}</div>
+    <p class="qtext">${esc(m.text)}</p>
+    ${m.answer?`<div class="given"><small>✓ Javob berilgan · ${m.answeredAt?new Date(m.answeredAt).toLocaleString("uz-UZ"):""}</small><div>${esc(m.answer)}</div></div>`:""}
+    <div class="reply">
+      <label for="ans_${m.id}">${m.answer?"Javobni o'zgartirish":"Javobingiz"}</label>
+      <textarea id="ans_${m.id}" class="ans" placeholder="Javobni shu yerga yozing...">${esc(m.answer||"")}</textarea>
+      <div class="ractions">
+        <button class="btn pri sm" data-save="${m.id}">✓ Javobni saqlash</button>
+        ${contactLinks(m)}
+        <span class="sp"></span>
+        <span class="confirm" data-delwrap><button class="btn sm danger" data-mdel="${m.id}">🗑 O'chirish</button></span>
+      </div>
+      <span class="hint">"Javobni saqlash" javobni saytdagi "Javobni tekshirish" bo'limida ham ko'rsatadi${m.code?` (so'rov raqami: ${esc(m.code)})`:""}. Telegram/Gmail/SMS tugmasi javob matnini tayyorlab, suhbatni ochadi.</span>
+    </div>
+  </div>`;
+  return head("saytdan kelgan","Xabarlar")+tabs+`<div class="panel">${list.length?list.map(card).join(""):`<div class="empty"><span class="hand">${all.length?"Bu bo'limda xabar yo'q":"Xabarlar yo'q"}</span>${all.length?"":"Saytdagi \"Aloqa\" formasi orqali yuborilgan xabarlar shu yerda ko'rinadi. Ular faqat admin panelda ko'rinadi."}</div>`}</div>`;
+}
+async function copyText(t){try{await navigator.clipboard.writeText(t);return true}catch(_){const ta=document.createElement("textarea");ta.value=t;document.body.appendChild(ta);ta.select();let ok=false;try{ok=document.execCommand("copy")}catch(_){}ta.remove();return ok}}
+function replyText(m,ans){return `Assalomu alaykum, ${m.name}!\n\n${ans}\n\nHurmat bilan,\n356-maktab ma'muriyati${m.code?`\n(So'rov raqami: ${m.code})`:""}`}
+async function saveAnswer(id,quiet){
+  const m=S.inbox.find(x=>x.id===id);const ans=$("#ans_"+id).value.trim();
+  if(!ans){toast("Avval javob matnini yozing");$("#ans_"+id).focus();return null}
+  if(m.answer!==ans){try{await api("PUT",`/api/messages/${id}`,{answer:ans});m.answer=ans;m.answeredAt=new Date().toISOString();m.read=true}catch(e){toast("Saqlab bo'lmadi");return null}}
+  if(!quiet){toast("Javob saqlandi");render()}
+  return m;
 }
 async function markMsg(id,i,act){
-  try{if(act==="read")await api("PUT",`/api/messages/${id}`,{read:true});else await api("DELETE",`/api/messages/${id}`);await load();toast(act==="read"?"Belgilandi":"Xabar o'chirildi")}catch(e){toast("Bajarib bo'lmadi")}
+  try{if(act==="read")await api("PUT",`/api/messages/${id}`,{read:true});else await api("DELETE",`/api/messages/${id}`);await load();toast(act==="read"?"Belgilandi":"Xabar butunlay o'chirildi")}catch(e){toast("Bajarib bo'lmadi")}
 }
 
 const ABOUT_DEF={"text": "356-maktab 2024-yil sentabr oyida Toshkent shahri Yangi hayot tumani, Yangi Darxon mahallasida ochilgan zamonaviy umumta'lim maktabi. Maktabimizda yorug' sinf xonalari, informatika xonasi, sport zali va kutubxona mavjud.\n\nBiz har bir o'quvchiga sifatli bilim berish, uning iqtidorini topish va rivojlantirishni asosiy maqsad qilib qo'yganmiz.", "values": [{"t": "Bilim", "d": "Chuqurlashtirilgan fanlar va to'garaklar"}, {"t": "Tarbiya", "d": "Odob, hurmat va mas'uliyat"}, {"t": "Sport", "d": "Futbol, kurash, shaxmat seksiyalari"}, {"t": "Ijod", "d": "Musiqa, rasm va teatr to'garaklari"}], "timeline": [{"y": "2024 · sentabr", "p": "Yangi Darxon mahallasida yangi bino qurib bitkazildi va maktab ochildi. Birinchi o'quv yilida 520 nafar o'quvchi qabul qilindi."}, {"y": "2024 · dekabr", "p": "Tuman fan olimpiadalarida ilk sovrinlarimizni qo'lga kiritdik."}, {"y": "2025 · may", "p": "Ilk 38 nafar bitiruvchimiz maktabni tamomladi, ularning 29 nafari OTMga kirdi."}, {"y": "2025 · sentabr", "p": "Ikkinchi o'quv yili boshlandi, o'quvchilar soni 640 nafarga yetdi. Respublika olimpiadasida ikki sovrindor chiqdi."}, {"y": "2026", "p": "Futbol jamoamiz tuman chempioni bo'ldi, maktab sayti ishga tushdi, robototexnika to'garagi ochilishga tayyorlanmoqda."}], "resTitle": "Ikki yilda erishgan natijalarimiz", "resSub": "2024-yil sentabrdan buyon maktabimiz qo'lga kiritgan asosiy yutuqlar.", "olymp": {"tuman": 25, "shahar": 10, "resp": 2}, "results": [{"big": "520 → 640", "unit": "", "title": "O'quvchilar soni o'sdi", "text": "Birinchi yili 520 nafar o'quvchi qabul qilingan bo'lsa, ikkinchi yilda ular 640 nafarga yetdi."}, {"big": "76%", "unit": "", "title": "Bitiruvchilar OTMga kirdi", "text": "2025-yildagi ilk 38 nafar bitiruvchimizdan 29 nafari oliy o'quv yurtlariga talaba bo'ldi."}, {"big": "1-o'rin", "unit": "", "title": "Futbol bo'yicha tuman chempioni", "text": "2026-yil sentabrda maktablararo turnir g'olibi bo'ldik."}, {"big": "14", "unit": "to'garak", "title": "Faoliyat ko'rsatmoqda", "text": "Fan, sport, san'at va til to'garaklari. Robototexnika to'garagi tez orada ochiladi."}, {"big": "2", "unit": "ta", "title": "Respublika sovrindori", "text": "Fizika (2-o'rin) va matematika (3-o'rin) fanlaridan respublika olimpiadasi sovrindorlari."}]};
