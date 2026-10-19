@@ -599,6 +599,88 @@
       "quote": "Maktabimizning asosiy maqsadi — har bir bolaning iqtidorini topish va uni o'stirish. Biz o'quvchilarimizni nafaqat bilimli, balki odobli va Vataniga sodiq insonlar qilib tarbiyalaymiz.",
       "bio": "",
       "photo": null
+    },
+    "about": {
+      "text": "356-maktab 2024-yil sentabr oyida Toshkent shahri Yangi hayot tumani, Yangi Darxon mahallasida ochilgan zamonaviy umumta'lim maktabi. Maktabimizda yorug' sinf xonalari, informatika xonasi, sport zali va kutubxona mavjud.\n\nBiz har bir o'quvchiga sifatli bilim berish, uning iqtidorini topish va rivojlantirishni asosiy maqsad qilib qo'yganmiz.",
+      "values": [
+        {
+          "t": "Bilim",
+          "d": "Chuqurlashtirilgan fanlar va to'garaklar"
+        },
+        {
+          "t": "Tarbiya",
+          "d": "Odob, hurmat va mas'uliyat"
+        },
+        {
+          "t": "Sport",
+          "d": "Futbol, kurash, shaxmat seksiyalari"
+        },
+        {
+          "t": "Ijod",
+          "d": "Musiqa, rasm va teatr to'garaklari"
+        }
+      ],
+      "timeline": [
+        {
+          "y": "2024 · sentabr",
+          "p": "Yangi Darxon mahallasida yangi bino qurib bitkazildi va maktab ochildi. Birinchi o'quv yilida 520 nafar o'quvchi qabul qilindi."
+        },
+        {
+          "y": "2024 · dekabr",
+          "p": "Tuman fan olimpiadalarida ilk sovrinlarimizni qo'lga kiritdik."
+        },
+        {
+          "y": "2025 · may",
+          "p": "Ilk 38 nafar bitiruvchimiz maktabni tamomladi, ularning 29 nafari OTMga kirdi."
+        },
+        {
+          "y": "2025 · sentabr",
+          "p": "Ikkinchi o'quv yili boshlandi, o'quvchilar soni 640 nafarga yetdi. Respublika olimpiadasida ikki sovrindor chiqdi."
+        },
+        {
+          "y": "2026",
+          "p": "Futbol jamoamiz tuman chempioni bo'ldi, maktab sayti ishga tushdi, robototexnika to'garagi ochilishga tayyorlanmoqda."
+        }
+      ],
+      "resTitle": "Ikki yilda erishgan natijalarimiz",
+      "resSub": "2024-yil sentabrdan buyon maktabimiz qo'lga kiritgan asosiy yutuqlar.",
+      "olymp": {
+        "tuman": 25,
+        "shahar": 10,
+        "resp": 2
+      },
+      "results": [
+        {
+          "big": "520 → 640",
+          "unit": "",
+          "title": "O'quvchilar soni o'sdi",
+          "text": "Birinchi yili 520 nafar o'quvchi qabul qilingan bo'lsa, ikkinchi yilda ular 640 nafarga yetdi."
+        },
+        {
+          "big": "76%",
+          "unit": "",
+          "title": "Bitiruvchilar OTMga kirdi",
+          "text": "2025-yildagi ilk 38 nafar bitiruvchimizdan 29 nafari oliy o'quv yurtlariga talaba bo'ldi."
+        },
+        {
+          "big": "1-o'rin",
+          "unit": "",
+          "title": "Futbol bo'yicha tuman chempioni",
+          "text": "2026-yil sentabrda maktablararo turnir g'olibi bo'ldik."
+        },
+        {
+          "big": "14",
+          "unit": "to'garak",
+          "title": "Faoliyat ko'rsatmoqda",
+          "text": "Fan, sport, san'at va til to'garaklari. Robototexnika to'garagi tez orada ochiladi."
+        },
+        {
+          "big": "2",
+          "unit": "ta",
+          "title": "Respublika sovrindori",
+          "text": "Fizika (2-o'rin) va matematika (3-o'rin) fanlaridan respublika olimpiadasi sovrindorlari."
+        }
+      ]
     }
   }
 }

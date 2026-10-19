@@ -132,6 +132,16 @@ legend{font:600 13px var(--f-display);padding:0 6px}
 .gate{min-height:100%;display:grid;place-items:center;padding:24px}
 .gate .box{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:32px;max-width:440px;text-align:center;box-shadow:var(--shadow)}
 .gate .hand{font-family:var(--f-hand);font-size:28px;color:var(--margin)}
+.rows{display:grid;gap:10px}
+.rrow{display:grid;gap:8px;align-items:start;border:1px dashed var(--line);border-radius:12px;padding:12px;background:var(--paper)}
+.rrow.tl{grid-template-columns:170px 1fr auto}
+.rrow.res{grid-template-columns:140px 110px 1fr auto}
+.rrow.res textarea{grid-column:1/-2;min-height:60px}
+.rrow .x{align-self:start}
+.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.vals{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.vals .rrow{grid-template-columns:1fr}
+@media (max-width:640px){.rrow.tl,.rrow.res{grid-template-columns:1fr}.rrow.res textarea{grid-column:auto}.vals,.row3{grid-template-columns:1fr}}
 .confirm{display:inline-flex;gap:6px;align-items:center;font-size:13px;flex-wrap:wrap}
 .acts{display:inline-flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
 td.act .acts{flex-wrap:nowrap}
@@ -220,7 +230,7 @@ async function upload(file){
   return api("POST","/api/upload",{data});
 }
 async function load(){const d=await api("GET","/api/admin/all");["news","achievements","teachers","events","gallery"].forEach(k=>S[k]=d[k]||[]);S.inbox=d.messages||[];S.settings=d.settings||{};
-  if($("#drawer").hidden&&view!=="settings"&&view!=="director")render();else renderNav()}
+  if($("#drawer").hidden&&view!=="settings"&&view!=="director"&&view!=="about")render();else renderNav()}
 const S={news:[],achievements:[],teachers:[],events:[],gallery:[],inbox:[],settings:{}};
 let view="home",search="";
 
@@ -387,7 +397,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeForm()});
 /* ---------- views ---------- */
 const unread=()=>S.inbox.filter(m=>!m.read).length;
 function renderNav(){
-  const items=[["home","Bosh sahifa","home"],["news","Yangiliklar","news"],["achievements","Yutuqlar","medal"],["teachers","Ustozlar","teach"],["events","Tadbirlar","cal"],["gallery","Galereya","img"],["director","Direktor","teach"],["inbox","Xabarlar","mail"],["settings","Sozlamalar","gear"]];
+  const items=[["home","Bosh sahifa","home"],["news","Yangiliklar","news"],["achievements","Yutuqlar","medal"],["teachers","Ustozlar","teach"],["events","Tadbirlar","cal"],["gallery","Galereya","img"],["about","Maktab haqida","home"],["director","Direktor","teach"],["inbox","Xabarlar","mail"],["settings","Sozlamalar","gear"]];
   const u=unread();
   $("#nav").innerHTML=items.map(([k,t,i])=>`<button class="nav-btn ${view===k?"on":""}" data-v="${k}">${svg(i)}${t}${k==="inbox"&&u?`<span class="badge">${u}</span>`:""}</button>`).join("");
 }
@@ -403,6 +413,7 @@ function render(){
   if(view==="home")return m.innerHTML=homeView();
   if(view==="inbox")return m.innerHTML=inboxView();
   if(view==="settings"){m.innerHTML=settingsView();return wireSettings()}
+  if(view==="about"){m.innerHTML=aboutView();return wireAbout()}
   if(view==="director"){m.innerHTML=directorView();wireImg("#main");return wireDirector()}
   const c=CFG[view];let list=[...S[view]].reverse().sort(c.sort);
   if(search)list=list.filter(x=>c.match(x,search.toLowerCase()));
@@ -460,6 +471,51 @@ async function markMsg(id,i,act){
   try{if(act==="read")await api("PUT",`/api/messages/${id}`,{read:true});else await api("DELETE",`/api/messages/${id}`);await load();toast(act==="read"?"Belgilandi":"Xabar o'chirildi")}catch(e){toast("Bajarib bo'lmadi")}
 }
 
+const ABOUT_DEF={"text": "356-maktab 2024-yil sentabr oyida Toshkent shahri Yangi hayot tumani, Yangi Darxon mahallasida ochilgan zamonaviy umumta'lim maktabi. Maktabimizda yorug' sinf xonalari, informatika xonasi, sport zali va kutubxona mavjud.\n\nBiz har bir o'quvchiga sifatli bilim berish, uning iqtidorini topish va rivojlantirishni asosiy maqsad qilib qo'yganmiz.", "values": [{"t": "Bilim", "d": "Chuqurlashtirilgan fanlar va to'garaklar"}, {"t": "Tarbiya", "d": "Odob, hurmat va mas'uliyat"}, {"t": "Sport", "d": "Futbol, kurash, shaxmat seksiyalari"}, {"t": "Ijod", "d": "Musiqa, rasm va teatr to'garaklari"}], "timeline": [{"y": "2024 · sentabr", "p": "Yangi Darxon mahallasida yangi bino qurib bitkazildi va maktab ochildi. Birinchi o'quv yilida 520 nafar o'quvchi qabul qilindi."}, {"y": "2024 · dekabr", "p": "Tuman fan olimpiadalarida ilk sovrinlarimizni qo'lga kiritdik."}, {"y": "2025 · may", "p": "Ilk 38 nafar bitiruvchimiz maktabni tamomladi, ularning 29 nafari OTMga kirdi."}, {"y": "2025 · sentabr", "p": "Ikkinchi o'quv yili boshlandi, o'quvchilar soni 640 nafarga yetdi. Respublika olimpiadasida ikki sovrindor chiqdi."}, {"y": "2026", "p": "Futbol jamoamiz tuman chempioni bo'ldi, maktab sayti ishga tushdi, robototexnika to'garagi ochilishga tayyorlanmoqda."}], "resTitle": "Ikki yilda erishgan natijalarimiz", "resSub": "2024-yil sentabrdan buyon maktabimiz qo'lga kiritgan asosiy yutuqlar.", "olymp": {"tuman": 25, "shahar": 10, "resp": 2}, "results": [{"big": "520 → 640", "unit": "", "title": "O'quvchilar soni o'sdi", "text": "Birinchi yili 520 nafar o'quvchi qabul qilingan bo'lsa, ikkinchi yilda ular 640 nafarga yetdi."}, {"big": "76%", "unit": "", "title": "Bitiruvchilar OTMga kirdi", "text": "2025-yildagi ilk 38 nafar bitiruvchimizdan 29 nafari oliy o'quv yurtlariga talaba bo'ldi."}, {"big": "1-o'rin", "unit": "", "title": "Futbol bo'yicha tuman chempioni", "text": "2026-yil sentabrda maktablararo turnir g'olibi bo'ldik."}, {"big": "14", "unit": "to'garak", "title": "Faoliyat ko'rsatmoqda", "text": "Fan, sport, san'at va til to'garaklari. Robototexnika to'garagi tez orada ochiladi."}, {"big": "2", "unit": "ta", "title": "Respublika sovrindori", "text": "Fizika (2-o'rin) va matematika (3-o'rin) fanlaridan respublika olimpiadasi sovrindorlari."}]};
+const tlRow=t=>`<div class="rrow tl"><input class="ty" placeholder="2025 · may" value="${esc(t.y||"")}" aria-label="Yil"><textarea class="tp" style="min-height:60px" placeholder="Nima bo'ldi?" aria-label="Voqea">${esc(t.p||"")}</textarea><button type="button" class="btn sm danger x" data-rm>🗑</button></div>`;
+const resRow=r=>`<div class="rrow res"><input class="rb" placeholder="76%" value="${esc(r.big||"")}" aria-label="Katta raqam"><input class="ru" placeholder="birlik" value="${esc(r.unit||"")}" aria-label="Birlik"><input class="rt" placeholder="Sarlavha, masalan: Bitiruvchilar OTMga kirdi" value="${esc(r.title||"")}" aria-label="Sarlavha"><button type="button" class="btn sm danger x" data-rm>🗑</button><textarea class="rx" placeholder="Qisqa izoh (ixtiyoriy)" aria-label="Izoh">${esc(r.text||"")}</textarea></div>`;
+function aboutView(){
+  const ab={...ABOUT_DEF,...(S.settings.about||{})},o=ab.olymp||{};
+  const vals=[0,1,2,3].map(i=>ab.values[i]||{t:"",d:""});
+  return head("maktab ma'lumotlari","Maktab haqida")+`<form id="abForm" style="display:grid;gap:18px;max-width:860px">
+   <div class="panel"><h3>Maktab haqida matn</h3><div style="padding:16px;display:grid;gap:12px">
+    <div class="field"><textarea id="ab_text" style="min-height:150px" aria-label="Maktab haqida matn">${esc(ab.text)}</textarea><span class="hint">Yangi xatboshi uchun bo'sh qator qoldiring</span></div>
+   </div></div>
+   <div class="panel"><h3>Qadriyatlarimiz (4 ta karta)</h3><div style="padding:16px" class="vals">
+    ${vals.map((v,i)=>`<div class="rrow"><input class="vt" placeholder="Sarlavha" value="${esc(v.t)}" aria-label="Qadriyat ${i+1}"><input class="vd" placeholder="Izoh" value="${esc(v.d)}" aria-label="Qadriyat ${i+1} izohi"></div>`).join("")}
+   </div></div>
+   <div class="panel"><h3>Natijalar bo'limi</h3><div style="padding:16px;display:grid;gap:14px">
+    <div class="row2"><div class="field"><label for="ab_rt">Sarlavha</label><input id="ab_rt" value="${esc(ab.resTitle)}"></div><div class="field"><label for="ab_rs">Qisqa izoh</label><input id="ab_rs" value="${esc(ab.resSub)}"></div></div>
+    <fieldset><legend>Fan olimpiadalari sovrinlari</legend><div class="row3">
+     <div class="field"><label for="ab_o1">Tuman</label><input id="ab_o1" type="number" min="0" value="${esc(o.tuman??0)}"></div>
+     <div class="field"><label for="ab_o2">Shahar</label><input id="ab_o2" type="number" min="0" value="${esc(o.shahar??0)}"></div>
+     <div class="field"><label for="ab_o3">Respublika</label><input id="ab_o3" type="number" min="0" value="${esc(o.resp??0)}"></div></div>
+     <span class="hint">Jami soni va diagramma saytda o'zi hisoblanadi</span></fieldset>
+    <div class="field"><label>Natija kartalari</label><span class="hint">Masalan: <b>76%</b> — Bitiruvchilar OTMga kirdi. Raqamni o'zgartirsangiz, saytda ham o'zgaradi.</span>
+     <div class="rows" id="resRows">${(ab.results||[]).map(resRow).join("")}</div>
+     <div><button type="button" class="btn sm" id="addRes">+ Natija qo'shish</button></div></div>
+   </div></div>
+   <div class="panel"><h3>Maktabimiz tarixi</h3><div style="padding:16px;display:grid;gap:10px">
+    <div class="rows" id="tlRows">${(ab.timeline||[]).map(tlRow).join("")}</div>
+    <div><button type="button" class="btn sm" id="addTl">+ Voqea qo'shish</button></div>
+   </div></div>
+   <div><button class="btn pri" type="submit" id="abSave">✓ Saqlash</button></div></form>`;
+}
+function wireAbout(){
+  const f=$("#abForm");
+  f.addEventListener("click",e=>{const b=e.target.closest("[data-rm]");if(b)b.closest(".rrow").remove()});
+  $("#addRes").onclick=()=>{$("#resRows").insertAdjacentHTML("beforeend",resRow({}));$("#resRows .rrow:last-child .rb").focus()};
+  $("#addTl").onclick=()=>{$("#tlRows").insertAdjacentHTML("beforeend",tlRow({}));$("#tlRows .rrow:last-child .ty").focus()};
+  f.onsubmit=async e=>{e.preventDefault();const v=id=>$("#"+id).value.trim(),q=(r,c)=>r.querySelector(c).value.trim();
+    const about={text:$("#ab_text").value.trim(),
+      values:[...f.querySelectorAll(".vals .rrow")].map(r=>({t:q(r,".vt"),d:q(r,".vd")})),
+      resTitle:v("ab_rt"),resSub:v("ab_rs"),
+      olymp:{tuman:+v("ab_o1")||0,shahar:+v("ab_o2")||0,resp:+v("ab_o3")||0},
+      results:[...f.querySelectorAll("#resRows .rrow")].map(r=>({big:q(r,".rb"),unit:q(r,".ru"),title:q(r,".rt"),text:q(r,".rx")})).filter(r=>r.big||r.title),
+      timeline:[...f.querySelectorAll("#tlRows .rrow")].map(r=>({y:q(r,".ty"),p:q(r,".tp")})).filter(t=>t.y||t.p)};
+    const data={...S.settings,about};
+    try{await api("PUT","/api/settings",data);S.settings=data;toast("Saqlandi — saytda yangilandi")}catch(err){toast("Saqlab bo'lmadi")}};
+}
 const DIR_DEF={name:"Dilfuza Toshmuxamedova",role:"Maktab direktori",quote:"Maktabimizning asosiy maqsadi — har bir bolaning iqtidorini topish va uni o'stirish. Biz o'quvchilarimizni nafaqat bilimli, balki odobli va Vataniga sodiq insonlar qilib tarbiyalaymiz.",bio:"",photo:null};
 function directorView(){
   const d={...DIR_DEF,...(S.settings.director||{})};

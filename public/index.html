@@ -212,21 +212,18 @@ section.sec{padding-block:72px 20px;scroll-margin-top:70px}
 
 /* about */
 .about{display:grid;grid-template-columns:1fr 1.1fr;gap:40px;align-items:start}
-.director{background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow);border-radius:var(--r);padding:32px;position:relative}
-.director::before{content:"";position:absolute;left:28px;top:0;bottom:0;width:2px;background:var(--margin);opacity:.5}
-.director blockquote{margin:0 0 20px 22px;font-size:18px;line-height:1.65}
-.director blockquote::before{content:"“";font-family:var(--f-display);font-size:64px;color:var(--marigold);display:block;line-height:.6;margin-bottom:6px}
-.dir-eyebrow{margin-left:22px;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--margin);margin-bottom:14px}
-.dir-head{margin-left:22px;display:flex;align-items:center;gap:18px;margin-bottom:20px}
-.dir-photo{width:96px;height:96px;border-radius:50%;flex:none;display:grid;place-items:center;background:var(--board) center/cover no-repeat;color:var(--chalk);font:700 28px var(--f-display);border:3px solid var(--marigold);box-shadow:var(--shadow)}
+.about-text{font-size:17px;line-height:1.75;color:var(--ink);background:var(--card);border:1px solid var(--line);border-left:4px solid var(--margin);border-radius:var(--r);padding:24px 26px;box-shadow:var(--shadow);white-space:pre-line}
+.tl-title{font-family:var(--f-display);font-weight:700;font-size:18px;margin-bottom:16px}
+.dir-card{display:grid;grid-template-columns:260px 1fr;gap:36px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:32px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.dir-card::after{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;background:var(--marigold);opacity:.12}
+.dir-photo{width:100%;max-width:260px;aspect-ratio:4/5;border-radius:18px;display:grid;place-items:center;background:var(--board) center/cover no-repeat;color:var(--chalk);font:700 56px var(--f-display);border:4px solid var(--marigold);box-shadow:var(--shadow);transform:rotate(-1.5deg)}
 .dir-photo.has{color:transparent}
-.dir-name{font-family:var(--f-display);font-size:clamp(20px,2.4vw,24px);font-weight:700;line-height:1.2}
-.dir-role{display:block;color:var(--ink-soft);font-size:14px;margin-top:4px}
-.dir-bio{margin:0 0 0 22px;color:var(--ink-soft);font-size:15px;line-height:1.7;white-space:pre-line;border-top:1px dashed var(--line);padding-top:16px}
-.sign{margin-left:22px;display:flex;align-items:center;gap:14px}
-.avatar{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;font-family:var(--f-display);font-weight:700;color:var(--chalk);background:var(--board);flex:none}
-.sign .hand{color:var(--ink);font-size:26px}
-.sign small{display:block;color:var(--ink-soft);font-size:13px;font-family:var(--f-body)}
+.dir-body{min-width:0;position:relative;z-index:1}
+.dir-name{font-family:var(--f-display);font-size:clamp(24px,3vw,34px);font-weight:700;line-height:1.15}
+.dir-role{display:inline-block;margin-top:8px;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--margin)}
+.dir-body blockquote{margin:22px 0 0;font-size:18px;line-height:1.7;padding-left:18px;border-left:3px solid var(--marigold)}
+.dir-bio{margin:18px 0 0;color:var(--ink-soft);font-size:15px;line-height:1.7;white-space:pre-line;border-top:1px dashed var(--line);padding-top:16px}
+@media (max-width:760px){.dir-card{grid-template-columns:1fr;padding:22px;gap:22px}.dir-photo{max-width:220px;margin:0 auto}}
 .values{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
 .value{background:var(--card);border:1px solid var(--line);border-top:3px solid var(--marigold);border-radius:12px;padding:16px;box-shadow:var(--shadow)}
 .value b{display:block;font-family:var(--f-display);font-size:14px;margin-bottom:4px}
@@ -346,6 +343,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
       <a href="#yangiliklar">Yangiliklar</a>
       <a href="#yutuqlar">Faxrlarimiz</a>
       <a href="#haqida">Maktab haqida</a>
+      <a href="#direktor">Direktor</a>
       <a href="#ustozlar">Ustozlar</a>
       <a href="#galereya">Galereya</a>
       <a href="#aloqa">Aloqa</a>
@@ -427,36 +425,33 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
     <div class="wrap">
       <div class="sec-head"><div><div class="hand">tanishing</div><h2>Maktab haqida</h2></div></div>
       <div class="about">
-        <div>
-          <div class="director">
-            <div class="dir-eyebrow">Maktab direktorimiz</div>
-            <div class="dir-head">
-              <span class="dir-photo" id="dirPhoto"><span id="dirInit">DT</span></span>
-              <div style="min-width:0"><h3 class="dir-name" id="dirName">Dilfuza Toshmuxamedova</h3><span class="dir-role" id="dirRole">Maktab direktori</span></div>
-            </div>
-            <blockquote id="dirQuote">Maktabimizning asosiy maqsadi — har bir bolaning iqtidorini topish va uni o'stirish. Biz o'quvchilarimizni nafaqat bilimli, balki odobli va Vataniga sodiq insonlar qilib tarbiyalaymiz.</blockquote>
-            <p class="dir-bio" id="dirBio" hidden></p>
-          </div>
-          <div class="values">
-            <div class="value"><b>Bilim</b><span>Chuqurlashtirilgan fanlar va to'garaklar</span></div>
-            <div class="value"><b>Tarbiya</b><span>Odob, hurmat va mas'uliyat</span></div>
-            <div class="value"><b>Sport</b><span>Futbol, kurash, shaxmat seksiyalari</span></div>
-            <div class="value"><b>Ijod</b><span>Musiqa, rasm va teatr to'garaklari</span></div>
-          </div>
+        <div style="min-width:0">
+          <div class="about-text" id="aboutText"></div>
+          <div class="values" id="values"></div>
         </div>
-        <div class="timeline" id="timeline"></div>
+        <div style="min-width:0">
+          <div class="tl-title">Maktabimiz tarixi</div>
+          <div class="timeline" id="timeline"></div>
+        </div>
       </div>
       <div class="results">
-        <h3>Ikki yilda erishgan natijalarimiz</h3>
-        <p>2024-yil sentabrdan 2026-yil oktabrgacha bo'lgan davrda maktabimiz qo'lga kiritgan asosiy yutuqlar.</p>
-        <div class="res-grid">
-          <div class="res"><div class="big">37 <small>sovrin</small></div><b>Fan olimpiadalarida</b>
-            <div class="bar"><div>Tuman<span><i style="width:100%"></i></span>25</div><div>Shahar<span><i style="width:40%"></i></span>10</div><div>Respublika<span><i style="width:8%"></i></span>2</div></div></div>
-          <div class="res"><div class="big">520 → 640</div><b>O'quvchilar soni o'sdi</b><p>Birinchi yili 520 nafar o'quvchi qabul qilingan bo'lsa, ikkinchi yilda ular 640 nafarga yetdi.</p></div>
-          <div class="res"><div class="big">76%</div><b>Bitiruvchilar OTMga kirdi</b><p>2025-yildagi ilk 38 nafar bitiruvchimizdan 29 nafari oliy o'quv yurtlariga talaba bo'ldi.</p></div>
-          <div class="res"><div class="big">1-o'rin</div><b>Futbol bo'yicha tuman chempioni</b><p>2026-yil sentabrda maktablararo turnir g'olibi bo'ldik.</p></div>
-          <div class="res"><div class="big">14 <small>to'garak</small></div><b>Faoliyat ko'rsatmoqda</b><p>Fan, sport, san'at va til to'garaklari. Robototexnika to'garagi tez orada ochiladi.</p></div>
-          <div class="res"><div class="big">2 <small>ta</small></div><b>Respublika sovrindori</b><p>Fizika (2-o'rin) va matematika (3-o'rin) fanlaridan respublika olimpiadasi sovrindorlari.</p></div>
+        <h3 id="resTitle"></h3>
+        <p id="resSub"></p>
+        <div class="res-grid" id="resGrid"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="direktor">
+    <div class="wrap">
+      <div class="sec-head"><div><div class="hand">maktab rahbari</div><h2>Maktab direktorimiz</h2></div></div>
+      <div class="dir-card">
+        <div class="dir-photo" id="dirPhoto"><span id="dirInit">DT</span></div>
+        <div class="dir-body">
+          <h3 class="dir-name" id="dirName">Dilfuza Toshmuxamedova</h3>
+          <span class="dir-role" id="dirRole">Maktab direktori</span>
+          <blockquote id="dirQuote">Maktabimizning asosiy maqsadi — har bir bolaning iqtidorini topish va uni o'stirish. Biz o'quvchilarimizni nafaqat bilimli, balki odobli va Vataniga sodiq insonlar qilib tarbiyalaymiz.</blockquote>
+          <p class="dir-bio" id="dirBio" hidden></p>
         </div>
       </div>
     </div>
@@ -560,13 +555,6 @@ let EVENTS=[
  {d:"02",m:"noy",t:"Shahar olimpiadasi",s:"Matematika va fizika"},
  {d:"10",m:"noy",t:"Kitobxonlik tanlovi",s:"5–7-sinflar uchun"}
 ];
-const TIMELINE=[
- {y:"2024 · sentabr",p:"Yangi Darxon mahallasida yangi bino qurib bitkazildi va maktab ochildi. Birinchi o'quv yilida 520 nafar o'quvchi qabul qilindi."},
- {y:"2024 · dekabr",p:"Tuman fan olimpiadalarida ilk sovrinlarimizni qo'lga kiritdik."},
- {y:"2025 · may",p:"Ilk 38 nafar bitiruvchimiz maktabni tamomladi, ularning 29 nafari OTMga kirdi."},
- {y:"2025 · sentabr",p:"Ikkinchi o'quv yili boshlandi, o'quvchilar soni 640 nafarga yetdi. Respublika olimpiadasida ikki sovrindor chiqdi."},
- {y:"2026",p:"Futbol jamoamiz tuman chempioni bo'ldi, maktab sayti ishga tushdi, robototexnika to'garagi ochilishga tayyorlanmoqda."}
-];
 let TEACHERS=[
  {n:"Gulnora Abdullayeva",s:"Matematika",e:24},{n:"Rustam Karimov",s:"Fizika",e:18},
  {n:"Dilnoza Qodirova",s:"Ingliz tili",e:12},{n:"Sherzod Mirzayev",s:"Informatika",e:9},
@@ -643,7 +631,18 @@ $("#achFilter").addEventListener("click",e=>{const b=e.target.closest(".chip");i
 
 function setOn(sel,b){document.querySelectorAll(sel+" .chip").forEach(c=>c.classList.toggle("on",c===b))}
 
-$("#timeline").innerHTML=TIMELINE.map(t=>`<div class="tl"><div class="y">${esc(t.y)}</div><p>${esc(t.p)}</p></div>`).join("");
+const DEFAULT_ABOUT={"text": "356-maktab 2024-yil sentabr oyida Toshkent shahri Yangi hayot tumani, Yangi Darxon mahallasida ochilgan zamonaviy umumta'lim maktabi. Maktabimizda yorug' sinf xonalari, informatika xonasi, sport zali va kutubxona mavjud.\n\nBiz har bir o'quvchiga sifatli bilim berish, uning iqtidorini topish va rivojlantirishni asosiy maqsad qilib qo'yganmiz.", "values": [{"t": "Bilim", "d": "Chuqurlashtirilgan fanlar va to'garaklar"}, {"t": "Tarbiya", "d": "Odob, hurmat va mas'uliyat"}, {"t": "Sport", "d": "Futbol, kurash, shaxmat seksiyalari"}, {"t": "Ijod", "d": "Musiqa, rasm va teatr to'garaklari"}], "timeline": [{"y": "2024 · sentabr", "p": "Yangi Darxon mahallasida yangi bino qurib bitkazildi va maktab ochildi. Birinchi o'quv yilida 520 nafar o'quvchi qabul qilindi."}, {"y": "2024 · dekabr", "p": "Tuman fan olimpiadalarida ilk sovrinlarimizni qo'lga kiritdik."}, {"y": "2025 · may", "p": "Ilk 38 nafar bitiruvchimiz maktabni tamomladi, ularning 29 nafari OTMga kirdi."}, {"y": "2025 · sentabr", "p": "Ikkinchi o'quv yili boshlandi, o'quvchilar soni 640 nafarga yetdi. Respublika olimpiadasida ikki sovrindor chiqdi."}, {"y": "2026", "p": "Futbol jamoamiz tuman chempioni bo'ldi, maktab sayti ishga tushdi, robototexnika to'garagi ochilishga tayyorlanmoqda."}], "resTitle": "Ikki yilda erishgan natijalarimiz", "resSub": "2024-yil sentabrdan buyon maktabimiz qo'lga kiritgan asosiy yutuqlar.", "olymp": {"tuman": 25, "shahar": 10, "resp": 2}, "results": [{"big": "520 → 640", "unit": "", "title": "O'quvchilar soni o'sdi", "text": "Birinchi yili 520 nafar o'quvchi qabul qilingan bo'lsa, ikkinchi yilda ular 640 nafarga yetdi."}, {"big": "76%", "unit": "", "title": "Bitiruvchilar OTMga kirdi", "text": "2025-yildagi ilk 38 nafar bitiruvchimizdan 29 nafari oliy o'quv yurtlariga talaba bo'ldi."}, {"big": "1-o'rin", "unit": "", "title": "Futbol bo'yicha tuman chempioni", "text": "2026-yil sentabrda maktablararo turnir g'olibi bo'ldik."}, {"big": "14", "unit": "to'garak", "title": "Faoliyat ko'rsatmoqda", "text": "Fan, sport, san'at va til to'garaklari. Robototexnika to'garagi tez orada ochiladi."}, {"big": "2", "unit": "ta", "title": "Respublika sovrindori", "text": "Fizika (2-o'rin) va matematika (3-o'rin) fanlaridan respublika olimpiadasi sovrindorlari."}]};
+function renderAbout(ab){
+  ab={...DEFAULT_ABOUT,...(ab||{})};
+  $("#aboutText").textContent=ab.text||"";$("#aboutText").hidden=!ab.text;
+  $("#values").innerHTML=(ab.values||[]).filter(v=>v.t).map(v=>`<div class="value"><b>${esc(v.t)}</b><span>${esc(v.d||"")}</span></div>`).join("");
+  $("#timeline").innerHTML=(ab.timeline||[]).filter(t=>t.y||t.p).map(t=>`<div class="tl"><div class="y">${esc(t.y)}</div><p>${esc(t.p)}</p></div>`).join("");
+  $("#resTitle").textContent=ab.resTitle||"";$("#resSub").textContent=ab.resSub||"";
+  const o=ab.olymp||{},lv=[["Tuman",+o.tuman||0],["Shahar",+o.shahar||0],["Respublika",+o.resp||0]],tot=lv.reduce((s,x)=>s+x[1],0),mx=Math.max(1,...lv.map(x=>x[1]));
+  const olyCard=tot?`<div class="res"><div class="big">${tot} <small>sovrin</small></div><b>Fan olimpiadalarida</b><div class="bar">${lv.map(([n,v])=>`<div>${n}<span><i style="width:${Math.round(v/mx*100)}%"></i></span>${v}</div>`).join("")}</div></div>`:"";
+  $("#resGrid").innerHTML=olyCard+(ab.results||[]).filter(r=>r.big||r.title).map(r=>`<div class="res"><div class="big">${esc(r.big)}${r.unit?` <small>${esc(r.unit)}</small>`:""}</div><b>${esc(r.title)}</b>${r.text?`<p>${esc(r.text)}</p>`:""}</div>`).join("");
+}
+renderAbout();
 const AV=["#1f3b2d","#c2553d","#b88a17","#6a4c8c","#3c6f86","#2f7a52"];
 function renderTeachers(){$("#teachers").innerHTML=TEACHERS.map((t,i)=>`<div class="teacher">${t.photo?`<span class="avatar photo" style="background-image:url('/uploads/${t.photo}')">${initials(t.n)}</span>`:`<span class="avatar" style="background:${AV[i%AV.length]}">${initials(t.n)}</span>`}<div style="min-width:0"><h3>${esc(t.n)}</h3><span class="subj">${esc(t.s)}</span><span class="exp">${t.e} yillik tajriba${(t.certs||[]).length?" · "+t.certs.length+" ta sertifikat":""}</span></div></div>`).join("")||`<p style="color:var(--ink-soft)">Ustozlar ro'yxati tez orada qo'shiladi.</p>`}
 function renderGallery(){$("#gallery").innerHTML=GALLERY.map((g,i)=>g.img?`<div class="ph ${g.w?"w h":""}" style="background:var(--board) url('/uploads/${g.img}')"><span>${esc(g.t)}</span></div>`:`<div class="ph ${g.k}" style="background:${g.c}"><svg viewBox="0 0 100 100" preserveAspectRatio="none"><circle cx="${20+i*11%60}" cy="${30+i*17%40}" r="${18+i%3*8}" fill="#fff"/><path d="M0 100 L${30+i*7%30} ${55+i*5%20} L60 75 L100 50 L100 100Z" fill="#fff"/></svg><span>${esc(g.t)}</span></div>`).join("")||`<p style="color:var(--ink-soft)">Rasmlar tez orada qo'shiladi.</p>`}
@@ -675,6 +674,7 @@ function applySettings(d){
   [["students","st_students"],["teachers","st_teachers"],["prizes","st_prizes"]].forEach(([k,id])=>{if(d[k]!=null&&+$("#"+id).dataset.n!==d[k])count($("#"+id),d[k])});
   if(d.phone)$("#ci_phone").textContent=d.phone;if(d.address)$("#ci_address").textContent=d.address;if(d.hours)$("#ci_hours").textContent=d.hours;
   const bn=$("#banner");if(d.banner?.on&&d.banner.text){bn.textContent=d.banner.text;bn.hidden=false}else bn.hidden=true;
+  renderAbout(d.about);
   const dr=d.director;
   if(dr){
     if(dr.name){$("#dirName").textContent=dr.name;$("#dirInit").textContent=initials(dr.name)}
