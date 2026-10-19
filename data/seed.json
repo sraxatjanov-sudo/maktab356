@@ -592,6 +592,13 @@
     "banner": {
       "on": false,
       "text": ""
+    },
+    "director": {
+      "name": "Dilfuza Toshmuxamedova",
+      "role": "Maktab direktori",
+      "quote": "Maktabimizning asosiy maqsadi — har bir bolaning iqtidorini topish va uni o'stirish. Biz o'quvchilarimizni nafaqat bilimli, balki odobli va Vataniga sodiq insonlar qilib tarbiyalaymiz.",
+      "bio": "",
+      "photo": null
     }
   }
 }

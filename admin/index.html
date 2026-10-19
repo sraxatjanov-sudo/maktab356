@@ -220,7 +220,7 @@ async function upload(file){
   return api("POST","/api/upload",{data});
 }
 async function load(){const d=await api("GET","/api/admin/all");["news","achievements","teachers","events","gallery"].forEach(k=>S[k]=d[k]||[]);S.inbox=d.messages||[];S.settings=d.settings||{};
-  if($("#drawer").hidden&&view!=="settings")render();else renderNav()}
+  if($("#drawer").hidden&&view!=="settings"&&view!=="director")render();else renderNav()}
 const S={news:[],achievements:[],teachers:[],events:[],gallery:[],inbox:[],settings:{}};
 let view="home",search="";
 
@@ -347,8 +347,9 @@ function imgField(id,label,val){
   <div style="display:grid;gap:6px"><input type="file" id="${id}_file" accept="image/*" style="padding:8px"><input type="hidden" id="${id}" data-id="${esc(val||"")}">
   <span class="hint" id="${id}_st">JPG yoki PNG. Katta rasm o\'zi kichraytiriladi</span>${val?`<button type="button" class="btn sm" data-clear="${id}">Rasmni olib tashlash</button>`:""}</div></div></div>`;
 }
-function wireImg(){
-  document.querySelectorAll('#dbox input[type=file]').forEach(inp=>{
+function wireImg(scope){
+  scope=scope||'#dbox';
+  document.querySelectorAll(scope+' input[type=file]').forEach(inp=>{
     const id=inp.id.replace(/_file$/,"");
     inp.onchange=async()=>{const f=inp.files[0];if(!f)return;const st=$("#"+id+"_st");st.textContent="Yuklanmoqda...";inp.disabled=true;$("#dSave")&&($("#dSave").disabled=true);
       try{const r=await upload(f);$("#"+id).dataset.id=r.id;const p=$("#"+id+"_prev");p.style.backgroundImage=`url('${r.url}')`;p.textContent="";st.textContent="Rasm yuklandi"}
@@ -386,7 +387,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeForm()});
 /* ---------- views ---------- */
 const unread=()=>S.inbox.filter(m=>!m.read).length;
 function renderNav(){
-  const items=[["home","Bosh sahifa","home"],["news","Yangiliklar","news"],["achievements","Yutuqlar","medal"],["teachers","Ustozlar","teach"],["events","Tadbirlar","cal"],["gallery","Galereya","img"],["inbox","Xabarlar","mail"],["settings","Sozlamalar","gear"]];
+  const items=[["home","Bosh sahifa","home"],["news","Yangiliklar","news"],["achievements","Yutuqlar","medal"],["teachers","Ustozlar","teach"],["events","Tadbirlar","cal"],["gallery","Galereya","img"],["director","Direktor","teach"],["inbox","Xabarlar","mail"],["settings","Sozlamalar","gear"]];
   const u=unread();
   $("#nav").innerHTML=items.map(([k,t,i])=>`<button class="nav-btn ${view===k?"on":""}" data-v="${k}">${svg(i)}${t}${k==="inbox"&&u?`<span class="badge">${u}</span>`:""}</button>`).join("");
 }
@@ -402,6 +403,7 @@ function render(){
   if(view==="home")return m.innerHTML=homeView();
   if(view==="inbox")return m.innerHTML=inboxView();
   if(view==="settings"){m.innerHTML=settingsView();return wireSettings()}
+  if(view==="director"){m.innerHTML=directorView();wireImg("#main");return wireDirector()}
   const c=CFG[view];let list=[...S[view]].reverse().sort(c.sort);
   if(search)list=list.filter(x=>c.match(x,search.toLowerCase()));
   const addBtn=`<button class="btn yel" data-add="${view}">+ Yangi ${c.one} qo'shish</button>`;
@@ -458,6 +460,25 @@ async function markMsg(id,i,act){
   try{if(act==="read")await api("PUT",`/api/messages/${id}`,{read:true});else await api("DELETE",`/api/messages/${id}`);await load();toast(act==="read"?"Belgilandi":"Xabar o'chirildi")}catch(e){toast("Bajarib bo'lmadi")}
 }
 
+const DIR_DEF={name:"Dilfuza Toshmuxamedova",role:"Maktab direktori",quote:"Maktabimizning asosiy maqsadi — har bir bolaning iqtidorini topish va uni o'stirish. Biz o'quvchilarimizni nafaqat bilimli, balki odobli va Vataniga sodiq insonlar qilib tarbiyalaymiz.",bio:"",photo:null};
+function directorView(){
+  const d={...DIR_DEF,...(S.settings.director||{})};
+  return head("maktab rahbari","Maktab direktorimiz")+`<form id="dirForm" style="display:grid;gap:18px;max-width:760px">
+   <div class="panel"><h3>Direktor ma'lumotlari</h3><div style="padding:16px;display:grid;gap:14px">
+    ${imgField("d_photo","Direktor rasmi",d.photo)}
+    <div class="row2"><div class="field"><label for="d_name">Ism familiya *</label><input id="d_name" required value="${esc(d.name)}"></div>
+    <div class="field"><label for="d_role">Lavozimi</label><input id="d_role" value="${esc(d.role)}"></div></div>
+    <div class="field"><label for="d_quote">Direktor so'zi (saytda iqtibos sifatida chiqadi)</label><textarea id="d_quote" style="min-height:100px">${esc(d.quote)}</textarea></div>
+    <div class="field"><label for="d_bio">Direktor haqida ma'lumot</label><textarea id="d_bio" style="min-height:140px" placeholder="Masalan: ma'lumoti, ish tajribasi, mukofotlari...">${esc(d.bio)}</textarea><span class="hint">Bo'sh qoldirsangiz, saytda ko'rinmaydi</span></div>
+   </div></div>
+   <div><button class="btn pri" type="submit" id="dSave">✓ Saqlash</button></div></form>`;
+}
+function wireDirector(){
+  $("#dirForm").onsubmit=async e=>{e.preventDefault();const v=id=>$("#"+id).value.trim();
+    const director={name:v("d_name"),role:v("d_role")||"Maktab direktori",quote:v("d_quote"),bio:v("d_bio"),photo:$("#d_photo").dataset.id||null};
+    const data={...S.settings,director};
+    try{await api("PUT","/api/settings",data);S.settings=data;toast("Saqlandi — saytda yangilandi")}catch(err){toast("Saqlab bo'lmadi")}};
+}
 function settingsView(){
   const s=S.settings,b=s.banner||{};
   return head("sayt sozlamalari","Sozlamalar")+`<form id="setForm" style="display:grid;gap:18px;max-width:760px">
@@ -480,7 +501,7 @@ function settingsView(){
 }
 function wireSettings(){
   $("#setForm").onsubmit=async e=>{e.preventDefault();const v=id=>$("#"+id).value.trim();
-    const data={students:+v("s_students")||0,teachers:+v("s_teachers")||0,prizes:+v("s_prizes")||0,founded:+v("s_founded")||2024,phone:v("s_phone"),address:v("s_address"),hours:v("s_hours"),banner:{on:$("#s_bon").checked,text:v("s_btext")}};
+    const data={...S.settings,students:+v("s_students")||0,teachers:+v("s_teachers")||0,prizes:+v("s_prizes")||0,founded:+v("s_founded")||2024,phone:v("s_phone"),address:v("s_address"),hours:v("s_hours"),banner:{on:$("#s_bon").checked,text:v("s_btext")}};
     try{await api("PUT","/api/settings",data);S.settings=data;toast("Sozlamalar saqlandi")}catch(err){toast("Saqlab bo'lmadi")}};
 }
 

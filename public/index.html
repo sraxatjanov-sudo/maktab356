@@ -216,6 +216,13 @@ section.sec{padding-block:72px 20px;scroll-margin-top:70px}
 .director::before{content:"";position:absolute;left:28px;top:0;bottom:0;width:2px;background:var(--margin);opacity:.5}
 .director blockquote{margin:0 0 20px 22px;font-size:18px;line-height:1.65}
 .director blockquote::before{content:"“";font-family:var(--f-display);font-size:64px;color:var(--marigold);display:block;line-height:.6;margin-bottom:6px}
+.dir-eyebrow{margin-left:22px;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--margin);margin-bottom:14px}
+.dir-head{margin-left:22px;display:flex;align-items:center;gap:18px;margin-bottom:20px}
+.dir-photo{width:96px;height:96px;border-radius:50%;flex:none;display:grid;place-items:center;background:var(--board) center/cover no-repeat;color:var(--chalk);font:700 28px var(--f-display);border:3px solid var(--marigold);box-shadow:var(--shadow)}
+.dir-photo.has{color:transparent}
+.dir-name{font-family:var(--f-display);font-size:clamp(20px,2.4vw,24px);font-weight:700;line-height:1.2}
+.dir-role{display:block;color:var(--ink-soft);font-size:14px;margin-top:4px}
+.dir-bio{margin:0 0 0 22px;color:var(--ink-soft);font-size:15px;line-height:1.7;white-space:pre-line;border-top:1px dashed var(--line);padding-top:16px}
 .sign{margin-left:22px;display:flex;align-items:center;gap:14px}
 .avatar{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;font-family:var(--f-display);font-weight:700;color:var(--chalk);background:var(--board);flex:none}
 .sign .hand{color:var(--ink);font-size:26px}
@@ -422,8 +429,13 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
       <div class="about">
         <div>
           <div class="director">
-            <blockquote>Maktabimizning asosiy maqsadi — har bir bolaning iqtidorini topish va uni o'stirish. Biz o'quvchilarimizni nafaqat bilimli, balki odobli va Vataniga sodiq insonlar qilib tarbiyalaymiz.</blockquote>
-            <div class="sign"><span class="avatar">D</span><div><span class="hand">Maktab direktori</span><small>356-umumta'lim maktabi</small></div></div>
+            <div class="dir-eyebrow">Maktab direktorimiz</div>
+            <div class="dir-head">
+              <span class="dir-photo" id="dirPhoto"><span id="dirInit">DT</span></span>
+              <div style="min-width:0"><h3 class="dir-name" id="dirName">Dilfuza Toshmuxamedova</h3><span class="dir-role" id="dirRole">Maktab direktori</span></div>
+            </div>
+            <blockquote id="dirQuote">Maktabimizning asosiy maqsadi — har bir bolaning iqtidorini topish va uni o'stirish. Biz o'quvchilarimizni nafaqat bilimli, balki odobli va Vataniga sodiq insonlar qilib tarbiyalaymiz.</blockquote>
+            <p class="dir-bio" id="dirBio" hidden></p>
           </div>
           <div class="values">
             <div class="value"><b>Bilim</b><span>Chuqurlashtirilgan fanlar va to'garaklar</span></div>
@@ -490,7 +502,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
 <footer>
   <div class="wrap">
     <span>© 2026 · 356-umumta'lim maktabi · Yangi hayot tumani</span>
-    <span>Sayt muallifi: Raxatjanov Shoxrux</span>
+    <span>Sayt muallifi: Raxatjanov Shoxrux, 9-A sinf o'quvchisi</span>
   </div>
 </footer>
 
@@ -663,6 +675,14 @@ function applySettings(d){
   [["students","st_students"],["teachers","st_teachers"],["prizes","st_prizes"]].forEach(([k,id])=>{if(d[k]!=null&&+$("#"+id).dataset.n!==d[k])count($("#"+id),d[k])});
   if(d.phone)$("#ci_phone").textContent=d.phone;if(d.address)$("#ci_address").textContent=d.address;if(d.hours)$("#ci_hours").textContent=d.hours;
   const bn=$("#banner");if(d.banner?.on&&d.banner.text){bn.textContent=d.banner.text;bn.hidden=false}else bn.hidden=true;
+  const dr=d.director;
+  if(dr){
+    if(dr.name){$("#dirName").textContent=dr.name;$("#dirInit").textContent=initials(dr.name)}
+    if(dr.role)$("#dirRole").textContent=dr.role;
+    if(dr.quote)$("#dirQuote").textContent=dr.quote;
+    const bio=$("#dirBio");bio.textContent=dr.bio||"";bio.hidden=!dr.bio;
+    const ph=$("#dirPhoto");if(dr.photo){ph.style.backgroundImage=`url('/uploads/${dr.photo}')`;ph.classList.add("has")}else{ph.style.backgroundImage="";ph.classList.remove("has")}
+  }
 }
 let lastJSON="";
 async function loadContent(){
