@@ -107,7 +107,10 @@ async function serveImage(res, name) {
   if (!mongo) return serveFile(res, UPLOAD_DIR, name);
   const doc = /^[a-f0-9]{16}\.(jpg|png|webp|gif)$/.test(name) ? await mongo.images.findOne({ _id: name }) : null;
   if (!doc) { res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" }); return res.end("Rasm topilmadi"); }
-  const buf = Buffer.from(doc.data.buffer ?? doc.data);
+  const raw = doc.b64 ? Buffer.from(doc.b64, "base64") : doc.data;
+  const buf = Buffer.isBuffer(raw) ? raw
+    : raw && raw.buffer instanceof Uint8Array ? Buffer.from(raw.buffer.subarray(0, raw.position ?? raw.buffer.length))
+    : Buffer.from(raw);
   res.writeHead(200, { "Content-Type": doc.type, "Cache-Control": "public, max-age=604800", "X-Content-Type-Options": "nosniff" });
   res.end(buf);
 }
@@ -192,7 +195,7 @@ async function api(req, res, parts) {
     const buf = Buffer.from(match[2], "base64");
     if (buf.length > MAX_IMAGE) return send(res, 400, { error: "Rasm juda katta (10 MB gacha)" });
     const name = newId() + "." + (match[1] === "jpeg" ? "jpg" : match[1]);
-    if (mongo) await mongo.images.insertOne({ _id: name, type: "image/" + match[1], data: buf, at: new Date() });
+    if (mongo) await mongo.images.insertOne({ _id: name, type: "image/" + match[1], b64: buf.toString("base64"), at: new Date() });
     else fs.writeFileSync(path.join(UPLOAD_DIR, name), buf);
     return send(res, 200, { id: name, url: "/uploads/" + name });
   }
@@ -204,7 +207,13 @@ async function api(req, res, parts) {
     const i = list.findIndex(x => x.id === b);
     if (i < 0) return send(res, 404, { error: "Topilmadi" });
     if (m === "PUT") { list[i] = { ...(await readBody(req, 300000)), id: b }; await save(); return send(res, 200, list[i]); }
-    if (m === "DELETE") { DATA[a] = list.filter(x => x.id !== b); await save(); return send(res, 200, { ok: true }); }
+    if (m === "DELETE") {
+      const removed = list[i];
+      DATA[a] = list.filter(x => x.id !== b);
+      // Yutuq o'chirilsa, u haqida avtomatik yozilgan yangilik ham o'chadi
+      if (a === "achievements") DATA.news = DATA.news.filter(n => !(n.achId === b || (n.medal && n.who && n.who === removed.n)));
+      await save(); return send(res, 200, { ok: true });
+    }
   }
 
   send(res, 404, { error: "Noma'lum so'rov" });

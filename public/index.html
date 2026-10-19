@@ -671,7 +671,8 @@ async function loadContent(){
     renderNews();renderAch();renderTeachers();renderEvents();renderGallery();applySettings(d.settings||{});
   }catch(_){}
 }
-loadContent();setInterval(loadContent,60000);
+loadContent();setInterval(loadContent,20000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)loadContent()});
 
 /* menu & theme */
 $("#menuBtn").onclick=()=>$("#nav").classList.toggle("open");

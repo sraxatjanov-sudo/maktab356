@@ -201,9 +201,22 @@ async function api(method,url,body){
   if(!r.ok)throw{code:r.status,message:d.error||"Xatolik"};
   return d;
 }
+// Rasmni yuklashdan oldin kichraytirib, JPG ga aylantiradi (telefon rasmlari 5-15 MB bo'ladi)
+async function shrink(file){
+  const url=URL.createObjectURL(file);
+  try{
+    const img=new Image();
+    await new Promise((ok,no)=>{img.onload=ok;img.onerror=()=>no({code:400,message:"Bu rasmni ochib bo'lmadi. JPG yoki PNG formatdagi rasm tanlang."});img.src=url});
+    const MAX=1600,k=Math.min(1,MAX/Math.max(img.naturalWidth,img.naturalHeight));
+    const w=Math.max(1,Math.round(img.naturalWidth*k)),h=Math.max(1,Math.round(img.naturalHeight*k));
+    const c=document.createElement("canvas");c.width=w;c.height=h;
+    const ctx=c.getContext("2d");ctx.fillStyle="#fff";ctx.fillRect(0,0,w,h);ctx.drawImage(img,0,0,w,h);
+    return c.toDataURL("image/jpeg",0.85);
+  }finally{URL.revokeObjectURL(url)}
+}
 async function upload(file){
-  if(file.size>10*1024*1024)throw{code:400,message:"Rasm juda katta (10 MB gacha)"};
-  const data=await new Promise((ok,no)=>{const fr=new FileReader();fr.onload=()=>ok(fr.result);fr.onerror=no;fr.readAsDataURL(file)});
+  if(!/^image\//.test(file.type)&&!/\.(jpe?g|png|webp|gif|heic|heif|bmp)$/i.test(file.name))throw{code:400,message:"Faqat rasm faylini tanlang (JPG, PNG)."};
+  const data=await shrink(file);
   return api("POST","/api/upload",{data});
 }
 async function load(){const d=await api("GET","/api/admin/all");["news","achievements","teachers","events","gallery"].forEach(k=>S[k]=d[k]||[]);S.inbox=d.messages||[];S.settings=d.settings||{};
@@ -290,7 +303,7 @@ const CFG={
    <label class="check"><input type="checkbox" id="f_news"> Bu yutuq haqida yangilik ham e'lon qilinsin</label>`,
   pack:()=>{const v=id=>$("#"+id).value.trim();const m=+document.querySelector("[name=f_m]:checked").value,lv=v("f_lv"),comp=v("f_comp"),f=v("f_f");
    return{photo:$("#f_photo").dataset.id||null,n:titleCase(v("f_n")),cl:v("f_cl").toUpperCase(),f,lv,comp,place:v("f_place"),m,y:+v("f_y"),a:v("f_a")||`${lv} ${compName(comp,f)}, ${m}-o'rin`}},
-  after:async(doc)=>{if(!$("#f_news")?.checked)return;await api("POST","/api/news",achNews(doc))}
+  after:async(doc,saved)=>{if(!$("#f_news")?.checked)return;await api("POST","/api/news",{...achNews(doc),achId:saved?.id})}
  },
  teachers:{title:"Ustozlar",one:"ustoz",hand:"bilim beruvchilar",icon:"teach",
   sort:(a,b)=>(a.n||"").localeCompare(b.n||""),
@@ -331,15 +344,16 @@ const CFG={
 function imgField(id,label,val){
   if(!assets)return`<div class="field"><label>${label}</label><span class="hint">Rasm yuklash mavjud emas.</span><input type="hidden" id="${id}" data-id="${esc(val||"")}"></div>`;
   return`<div class="field"><label for="${id}_file">${label}</label><div class="upl"><span class="prev" id="${id}_prev" style="${val?`background-image:url('/uploads/${val}')`:""}">${val?"":"Rasm yo'q"}</span>
-  <div style="display:grid;gap:6px"><input type="file" id="${id}_file" accept="image/png,image/jpeg,image/webp,image/gif" style="padding:8px"><input type="hidden" id="${id}" data-id="${esc(val||"")}">
-  <span class="hint" id="${id}_st">JPG yoki PNG, 10 MB gacha</span>${val?`<button type="button" class="btn sm" data-clear="${id}">Rasmni olib tashlash</button>`:""}</div></div></div>`;
+  <div style="display:grid;gap:6px"><input type="file" id="${id}_file" accept="image/*" style="padding:8px"><input type="hidden" id="${id}" data-id="${esc(val||"")}">
+  <span class="hint" id="${id}_st">JPG yoki PNG. Katta rasm o\'zi kichraytiriladi</span>${val?`<button type="button" class="btn sm" data-clear="${id}">Rasmni olib tashlash</button>`:""}</div></div></div>`;
 }
 function wireImg(){
   document.querySelectorAll('#dbox input[type=file]').forEach(inp=>{
     const id=inp.id.replace(/_file$/,"");
-    inp.onchange=async()=>{const f=inp.files[0];if(!f)return;const st=$("#"+id+"_st");st.textContent="Yuklanmoqda...";
+    inp.onchange=async()=>{const f=inp.files[0];if(!f)return;const st=$("#"+id+"_st");st.textContent="Yuklanmoqda...";inp.disabled=true;$("#dSave")&&($("#dSave").disabled=true);
       try{const r=await upload(f);$("#"+id).dataset.id=r.id;const p=$("#"+id+"_prev");p.style.backgroundImage=`url('${r.url}')`;p.textContent="";st.textContent="Rasm yuklandi"}
-      catch(e){st.textContent=e.message||"Yuklab bo'lmadi, qayta urinib ko'ring"}};
+      catch(e){st.textContent=e.message||"Yuklab bo'lmadi, qayta urinib ko'ring"}
+      finally{inp.disabled=false;$("#dSave")&&($("#dSave").disabled=false)}};
   });
   document.querySelectorAll('[data-clear]').forEach(b=>b.onclick=()=>{const id=b.dataset.clear;$("#"+id).dataset.id="";const p=$("#"+id+"_prev");p.style.backgroundImage="";p.textContent="Rasm yo'q";b.remove()});
 }
@@ -357,8 +371,8 @@ function openForm(col,item){
   $("#dClose").onclick=closeForm;
   $("#dForm").onsubmit=async e=>{e.preventDefault();const doc=c.pack();const bad=c.validate?.(doc);if(bad){showErr(bad);return}
     $("#dSave").disabled=true;$("#dSave").textContent="Saqlanmoqda...";
-    try{ if(item)await api("PUT",`/api/${col}/${item.id}`,doc); else await api("POST",`/api/${col}`,doc);
-      await c.after?.(doc);closeForm();await load();toast(item?"O'zgartirildi — saytda yangilandi":"Qo'shildi — saytda paydo bo'ldi");}
+    try{ const saved=item?await api("PUT",`/api/${col}/${item.id}`,doc):await api("POST",`/api/${col}`,doc);
+      await c.after?.(doc,saved);closeForm();await load();toast(item?"O'zgartirildi — saytda yangilandi":"Qo'shildi — saytda paydo bo'ldi");}
     catch(err){$("#dSave").disabled=false;$("#dSave").textContent=item?"✓ Tayyor":"Qo'shish";showErr(err.code===401?"Sessiya tugadi, qayta kiring.":err.code?err.message:"Server bilan aloqa yo'q. Server ishlayotganini tekshiring.")}};
   if(item)$("#dDel").onclick=()=>{$("#delWrap").innerHTML=`Rostdan o'chirilsinmi? <button type="button" class="btn sm danger" id="dYes">Ha, o'chirish</button><button type="button" class="btn sm" id="dNo">Yo'q</button>`;
     $("#dNo").onclick=()=>openForm(col,item);
@@ -402,7 +416,7 @@ function render(){
 $("#main").addEventListener("click",e=>{
   const a=e.target.closest("[data-add]");if(a)return openForm(a.dataset.add);
   const del=e.target.closest("[data-del]");if(del){const box=del.closest(".acts");const id=del.dataset.del;
-    box.innerHTML=`<span class="confirm">O'chirilsinmi? <button class="btn sm danger" data-yes="${id}">Ha, o'chirish</button><button class="btn sm" data-no="1">Yo'q</button></span>`;return}
+    box.innerHTML=`<span class="confirm">${view==="achievements"?"Yutuq va u haqidagi yangilik o'chirilsinmi?":"O'chirilsinmi?"} <button class="btn sm danger" data-yes="${id}">Ha, o'chirish</button><button class="btn sm" data-no="1">Yo'q</button></span>`;return}
   const yes=e.target.closest("[data-yes]");if(yes){const id=yes.dataset.yes;yes.disabled=true;api("DELETE",`/api/${view}/${id}`).then(load).then(()=>toast("O'chirildi — saytdan ham olib tashlandi")).catch(()=>{toast("O'chirib bo'lmadi");render()});return}
   if(e.target.closest("[data-no]"))return render();
   const ed=e.target.closest("[data-edit]");if(ed)return openForm(view,S[view].find(x=>x.id===ed.dataset.edit));
