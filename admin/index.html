@@ -144,6 +144,7 @@ legend{font:600 13px var(--f-display);padding:0 6px}
 .ractions a.btn{text-decoration:none;color:var(--ink)}
 .tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
 .chip{font:500 14px var(--f-body);padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);cursor:pointer}
+.btn.ai{border-color:color-mix(in srgb,var(--marigold) 60%,var(--line));background:color-mix(in srgb,var(--marigold) 14%,var(--card))}
 .chip.on{background:var(--board);color:var(--chalk);border-color:var(--board)}
 .chip b{margin-left:4px}
 
@@ -291,7 +292,8 @@ const CFG={
    ${imgField("f_img","Muqova rasmi",x.img)}
    <div class="field"><label for="f_g">Rasm yo'q bo'lsa, muqovadagi yozuv</label><input id="f_g" value="${esc(x.g||"")}" placeholder="Masalan: Bayram!"></div>
    <div class="field"><label for="f_s">Qisqa matn (kartochkada) *</label><textarea id="f_s" required style="min-height:64px">${esc(x.s)}</textarea></div>
-   <div class="field"><label for="f_full">To'liq matn</label><textarea id="f_full" style="min-height:120px">${esc(x.full)}</textarea></div>
+   <div class="field"><label for="f_full">To'liq matn</label><textarea id="f_full" style="min-height:120px">${esc(x.full)}</textarea>
+    ${AI_ON?`<div><button type="button" class="btn sm ai" id="aiNews">🤖 AI bilan to'liq matn yozish</button></div><span class="hint">Sarlavha va qisqa matn asosida AI yangilikni yozib beradi. Natijani albatta tekshiring.</span>`:""}</div>
    <label class="check"><input type="checkbox" id="f_soon" ${x.soon?"checked":""}> "Tez orada" belgisini qo'yish</label>
    <fieldset><legend>Batafsil ma'lumotlar (ixtiyoriy)</legend>
     <div class="field"><label for="f_info">Asosiy ma'lumotlar</label><textarea id="f_info" placeholder="Qayerda: Maktab zali&#10;Vaqt: 17:00">${esc(pairsToText(m.info))}</textarea><span class="hint">Har qatorga bittadan: <b>Nomi: qiymati</b></span></div>
@@ -397,6 +399,9 @@ function openForm(col,item){
    <div class="dfoot"><button class="btn pri" type="submit" id="dSave">${item?"✓ Tayyor":"Qo'shish"}</button>
    ${item?`<span class="confirm" id="delWrap"><button type="button" class="btn danger" id="dDel">O'chirish</button></span>`:""}</div></form>`;
   $("#drawer").hidden=false;wireImg();
+  const an=$("#aiNews");if(an)an.onclick=()=>{const t=$("#f_t").value.trim(),s=$("#f_s").value.trim(),info=$("#f_info")?.value.trim()||"";
+    if(!t&&!s){toast("Avval sarlavha yoki qisqa matnni yozing");return $("#f_t").focus()}
+    aiDraft(an,"news",`Sarlavha: ${t}\nQisqa ma'lumot: ${s}\nToifa: ${$("#f_c").selectedOptions[0].text}\nSana: ${$("#f_d").value}${info?"\nQo'shimcha: "+info:""}`,txt=>{$("#f_full").value=txt})};
   setTimeout(()=>$("#dbox input:not([type=hidden]),#dbox select")?.focus(),30);
   $("#dClose").onclick=closeForm;
   $("#dForm").onsubmit=async e=>{e.preventDefault();const doc=c.pack();const bad=c.validate?.(doc);if(bad){showErr(bad);return}
@@ -459,6 +464,8 @@ $("#main").addEventListener("click",e=>{
   const dy=e.target.closest("[data-mdelyes]");if(dy)return markMsg(dy.dataset.mdelyes,0,"del");
   const tf=e.target.closest("[data-inf]");if(tf){inboxF=tf.dataset.inf;return render()}
   const cp=e.target.closest("[data-copy]");if(cp){copyText(cp.dataset.copy).then(ok=>toast(ok?"Nusxalandi":"Nusxalab bo'lmadi"));return}
+  const ad=e.target.closest("[data-aidraft]");if(ad){const m=S.inbox.find(x=>x.id===ad.dataset.aidraft);
+    aiDraft(ad,"reply",`${m.who} (${m.name}) savoli: ${m.text}`,t=>{const ta=$("#ans_"+m.id);ta.value=t;ta.focus()});return}
   const sv=e.target.closest("[data-save]");if(sv)return saveAnswer(sv.dataset.save);
   const sd=e.target.closest("[data-send]");if(sd){const id=sd.closest("[data-mid]").dataset.mid;
     if(!$("#ans_"+id).value.trim()){e.preventDefault();toast("Avval javob matnini yozing");$("#ans_"+id).focus();return}
@@ -493,7 +500,14 @@ function homeView(){
   <div class="panel" style="margin-top:18px"><h3>So'nggi yangiliklar</h3>${latest.length?`<table><tbody>${latest.map(x=>`<tr><td><div class="t">${esc(x.t)}</div></td><td><span class="pill">${CAT[x.c]||""}</span></td><td style="white-space:nowrap">${fmt(x.d)}</td></tr>`).join("")}</tbody></table>`:`<div class="empty">Yangilik yo'q</div>`}</div>`;
 }
 
-let inboxF="new";
+let inboxF="new",AI_ON=false;
+fetch("/api/chat/status").then(r=>r.json()).then(d=>{AI_ON=!!d.enabled;if(AI_ON&&$("#app")&&!$("#app").hidden&&$("#drawer").hidden)render()}).catch(()=>{});
+async function aiDraft(btn,kind,input,apply){
+  const old=btn.textContent;btn.disabled=true;btn.textContent="🤖 Yozmoqda...";
+  try{const d=await api("POST","/api/ai/draft",{kind,input});apply(d.text);toast("AI qoralama tayyor — tekshirib, kerak bo'lsa o'zgartiring")}
+  catch(e){toast(e.message||"AI javob bermadi")}
+  finally{btn.disabled=false;btn.textContent=old}
+}
 const CT_ICON={telegram:"✈️ Telegram",phone:"📞 Telefon",email:"✉️ Gmail"};
 function contactLinks(m){
   const c=m.contact||"";if(!c)return`<span class="pill">Aloqa ma'lumoti yo'q</span>`;
@@ -508,7 +522,7 @@ function inboxView(){
   const list=all.filter(m=>inboxF==="all"||(inboxF==="new"?!m.answer:!!m.answer));
   const tabs=`<div class="tabs">${[["new","Javob kutayotgan"],["done","Javob berilgan"],["all","Hammasi"]].map(([k,t])=>`<button class="chip ${inboxF===k?"on":""}" data-inf="${k}">${t} <b>${cnt[k]}</b></button>`).join("")}</div>`;
   const card=m=>`<div class="msg ${m.read?"":"new"} ${m.answer?"answered":""}" data-mid="${m.id}">
-    <div class="meta"><b>${esc(m.name)}</b><span class="pill">${esc(m.who)}</span>${m.code?`<span class="pill code">№ ${esc(m.code)}</span>`:""}<span>${m.at?new Date(m.at).toLocaleString("uz-UZ"):""}</span>${m.read?"":`<span class="pill nw">Yangi</span>`}</div>
+    <div class="meta"><b>${esc(m.name)}</b><span class="pill">${esc(m.who)}</span>${m.source==="chat"?`<span class="pill">🤖 AI chat orqali</span>`:""}<span>${m.at?new Date(m.at).toLocaleString("uz-UZ"):""}</span>${m.read?"":`<span class="pill nw">Yangi</span>`}</div>
     <div class="contact-line">${m.contact?`<span class="ct">${CT_ICON[m.contactType]||""}: <b class="sel">${esc(m.contact)}</b></span><button class="btn sm" data-copy="${esc(m.contact)}">Nusxalash</button>`:""}</div>
     <p class="qtext">${esc(m.text)}</p>
     ${m.answer?`<div class="given"><small>✓ Javob berilgan · ${m.answeredAt?new Date(m.answeredAt).toLocaleString("uz-UZ"):""}</small><div>${esc(m.answer)}</div></div>`:""}
@@ -516,18 +530,19 @@ function inboxView(){
       <label for="ans_${m.id}">${m.answer?"Javobni o'zgartirish":"Javobingiz"}</label>
       <textarea id="ans_${m.id}" class="ans" placeholder="Javobni shu yerga yozing...">${esc(m.answer||"")}</textarea>
       <div class="ractions">
+        ${AI_ON?`<button class="btn sm ai" data-aidraft="${m.id}">🤖 AI qoralama</button>`:""}
         <button class="btn pri sm" data-save="${m.id}">✓ Javobni saqlash</button>
         ${contactLinks(m)}
         <span class="sp"></span>
         <span class="confirm" data-delwrap><button class="btn sm danger" data-mdel="${m.id}">🗑 O'chirish</button></span>
       </div>
-      <span class="hint">"Javobni saqlash" javobni saytdagi "Javobni tekshirish" bo'limida ham ko'rsatadi${m.code?` (so'rov raqami: ${esc(m.code)})`:""}. Telegram/Gmail/SMS tugmasi javob matnini tayyorlab, suhbatni ochadi.</span>
+      <span class="hint">Javob saytda hech kimga ko'rinmaydi. "Javobni saqlash" uni faqat shu yerda eslab qoladi. Telegram/Gmail/SMS tugmasi javob matnini tayyorlab, suhbatni ochadi.</span>
     </div>
   </div>`;
   return head("saytdan kelgan","Xabarlar")+tabs+`<div class="panel">${list.length?list.map(card).join(""):`<div class="empty"><span class="hand">${all.length?"Bu bo'limda xabar yo'q":"Xabarlar yo'q"}</span>${all.length?"":"Saytdagi \"Aloqa\" formasi orqali yuborilgan xabarlar shu yerda ko'rinadi. Ular faqat admin panelda ko'rinadi."}</div>`}</div>`;
 }
 async function copyText(t){try{await navigator.clipboard.writeText(t);return true}catch(_){const ta=document.createElement("textarea");ta.value=t;document.body.appendChild(ta);ta.select();let ok=false;try{ok=document.execCommand("copy")}catch(_){}ta.remove();return ok}}
-function replyText(m,ans){return `Assalomu alaykum, ${m.name}!\n\n${ans}\n\nHurmat bilan,\n356-maktab ma'muriyati${m.code?`\n(So'rov raqami: ${m.code})`:""}`}
+function replyText(m,ans){return `Assalomu alaykum, ${m.name}!\n\n${ans}\n\nHurmat bilan,\n356-maktab ma'muriyati`}
 async function saveAnswer(id,quiet){
   const m=S.inbox.find(x=>x.id===id);const ans=$("#ans_"+id).value.trim();
   if(!ans){toast("Avval javob matnini yozing");$("#ans_"+id).focus();return null}

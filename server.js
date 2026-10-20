@@ -18,6 +18,10 @@ const UPLOAD_DIR = path.join(ROOT, "uploads");
 const COLLECTIONS = ["news", "achievements", "teachers", "events", "gallery"];
 const MAX_IMAGE = 10 * 1024 * 1024; // 10 MB
 const MONGODB_URI = process.env.MONGODB_URI || "";
+// Sun'iy intellekt (Google Gemini). Kalit faqat Render'dagi Environment'da turadi, GitHub'ga yozilmaydi!
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "";
+const GEMINI_BASE = process.env.GEMINI_BASE || "https://generativelanguage.googleapis.com/v1beta";
+const GEMINI_MODELS = (process.env.GEMINI_MODEL || "gemini-flash-latest,gemini-2.5-flash,gemini-2.0-flash").split(",").map(x => x.trim()).filter(Boolean);
 
 let mongo = null; // { site, images } — MONGODB_URI berilganda
 if (!MONGODB_URI) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
@@ -85,7 +89,90 @@ function cleanContact(type, value) {
   if (type === "email") return /^[^\s@]{1,64}@[^\s@]{1,190}\.[A-Za-z]{2,}$/.test(v) ? v.toLowerCase() : null;
   return null;
 }
-const checkTries = new Map(); // ip -> { n, reset }
+/* ---------- Sun'iy intellekt ---------- */
+let workingModel = null;
+async function gemini(system, turns, { maxTokens = 600, temperature = 0.3 } = {}) {
+  if (!GEMINI_API_KEY) throw { status: 503, error: "AI ulanmagan" };
+  const body = {
+    systemInstruction: { parts: [{ text: system }] },
+    contents: turns.map(t => ({ role: t.role === "model" ? "model" : "user", parts: [{ text: t.text }] })),
+    generationConfig: { temperature, maxOutputTokens: maxTokens }
+  };
+  const models = workingModel ? [workingModel, ...GEMINI_MODELS.filter(m => m !== workingModel)] : GEMINI_MODELS;
+  let last = null;
+  for (const model of models) {
+    const ctrl = new AbortController(); const timer = setTimeout(() => ctrl.abort(), 25000);
+    try {
+      const r = await fetch(`${GEMINI_BASE}/models/${model}:generateContent`, {
+        method: "POST", signal: ctrl.signal,
+        headers: { "Content-Type": "application/json", "x-goog-api-key": GEMINI_API_KEY },
+        body: JSON.stringify(body)
+      });
+      const d = await r.json().catch(() => ({}));
+      if (r.status === 404) { last = { status: 502, error: "Model topilmadi: " + model }; continue; }
+      if (r.status === 429) throw { status: 429, error: "AI hozir band. Bir daqiqadan keyin qayta urinib ko'ring." };
+      if (r.status === 400 || r.status === 401 || r.status === 403) { console.error("Gemini:", r.status, JSON.stringify(d).slice(0, 300)); throw { status: 502, error: "AI kaliti noto'g'ri yoki faol emas." }; }
+      if (!r.ok) { last = { status: 502, error: "AI javob bermadi" }; continue; }
+      const text = (d.candidates?.[0]?.content?.parts || []).map(p => p.text || "").join("").trim();
+      if (!text) throw { status: 502, error: "AI bu savolga javob bera olmadi. Savolni boshqacha yozib ko'ring." };
+      workingModel = model;
+      return text;
+    } catch (e) {
+      if (e && e.status) throw e;
+      last = { status: 502, error: "AI bilan aloqa yo'q" };
+    } finally { clearTimeout(timer); }
+  }
+  throw last || { status: 502, error: "AI javob bermadi" };
+}
+// Sayt ma'lumotlaridan AI uchun qisqa "bilimlar bazasi" (shaxsiy xabarlar KIRMAYDI)
+function siteKnowledge() {
+  const st = DATA.settings || {}, ab = st.about || {}, dr = st.director || {};
+  const L = [];
+  L.push("MAKTAB: 356-umumta'lim maktabi, Toshkent shahri, Yangi hayot tumani, Yangi Darxon mahallasi.");
+  if (st.address) L.push("Manzil: " + st.address);
+  if (st.phone) L.push("Telefon: " + st.phone);
+  if (st.hours) L.push("Ish vaqti: " + st.hours);
+  if (st.students) L.push("O'quvchilar soni: " + st.students);
+  if (st.teachers) L.push("Ustozlar soni: " + st.teachers);
+  if (st.founded) L.push("Ochilgan yil: " + st.founded);
+  if (st.banner?.on && st.banner.text) L.push("MUHIM E'LON: " + st.banner.text);
+  if (dr.name) L.push(`Direktor: ${dr.name} (${dr.role || "Maktab direktori"}). ${dr.bio || ""}`);
+  if (ab.text) L.push("Maktab haqida: " + ab.text);
+  (ab.timeline || []).forEach(t => L.push(`Tarix — ${t.y}: ${t.p}`));
+  (ab.results || []).forEach(r => L.push(`Natija: ${r.big} ${r.unit || ""} — ${r.title}. ${r.text || ""}`));
+  const today = new Date().toISOString().slice(0, 10);
+  L.push("BUGUNGI SANA: " + today);
+  (DATA.events || []).forEach(e => L.push(`Tadbir: ${e.date} — ${e.t}${e.s ? " (" + e.s + ")" : ""}`));
+  (DATA.news || []).slice().sort((a, b) => (b.d || "").localeCompare(a.d || "")).slice(0, 15).forEach(n => {
+    const more = n.more || {};
+    const extra = [...(more.info || []).map(([k, v]) => k + ": " + v), ...(more.lists || []).map(l => l.h + ": " + (l.items || []).join("; ")),
+      ...((more.teachers?.list) || []).map(t => "Ustoz " + t.n + " (" + t.r + ")")].join(". ");
+    L.push(`Yangilik (${n.d}${n.soon ? ", tez orada" : ""}): ${n.t}. ${n.full || n.s || ""} ${extra}`.slice(0, 1200));
+  });
+  (DATA.teachers || []).forEach(t => L.push(`Ustoz: ${t.n} — ${t.s}, ${t.e || 0} yillik tajriba`));
+  (DATA.achievements || []).forEach(a => L.push(`Yutuq: ${a.n} (${a.cl}) — ${a.a}, ${a.y}`));
+  return L.join("\n").slice(0, 24000);
+}
+const CHAT_SYSTEM = () => `Sen 356-maktab saytidagi yordamchisan. Ota-onalar va o'quvchilarning savollariga O'ZBEK tilida (lotin yozuvida), qisqa, aniq va xushmuomala javob berasan.
+QOIDALAR:
+1. Faqat quyidagi MAKTAB MA'LUMOTLARI asosida javob ber. O'zingdan sana, raqam, ism yoki qoida to'qima.
+2. Agar javob ma'lumotlarda bo'lmasa yoki aniq bilmasang, buni ochiq ayt va javob oxiriga alohida qatorda [MUROJAAT] deb yoz. Shunda foydalanuvchiga savolni ma'muriyatga yuborish taklif qilinadi.
+3. Baholar, davomat, shaxsiy ma'lumotlar, to'lovlar yoki biror o'quvchi haqidagi shaxsiy masalalar so'ralsa, bunday ma'lumot senda yo'qligini ayt va [MUROJAAT] yoz.
+4. Foydalanuvchidan telefon, manzil yoki boshqa shaxsiy ma'lumot so'rama.
+5. Maktabga aloqasi yo'q savollarga (uy vazifasini to'liq yechib berish, o'yinlar, siyosat va h.k.) muloyimlik bilan rad et: sen faqat maktab haqidagi savollarga yordam berasan.
+6. Javob 1–5 gapdan oshmasin. Markdown, jadval ishlatma.
+
+MAKTAB MA'LUMOTLARI:
+${siteKnowledge()}`;
+const chatTries = new Map(); // ip -> { m, mReset, d, dReset }
+function chatLimited(ip) {
+  const now = Date.now(), t = chatTries.get(ip) || { m: 0, mReset: now + 60000, d: 0, dReset: now + 86400000 };
+  if (now > t.mReset) { t.m = 0; t.mReset = now + 60000; }
+  if (now > t.dReset) { t.d = 0; t.dReset = now + 86400000; }
+  t.m++; t.d++; chatTries.set(ip, t);
+  return t.m > 8 || t.d > 120;
+}
+const clientIp = req => (String(req.headers["x-forwarded-for"] || "").split(",")[0].trim()) || req.socket.remoteAddress;
 
 /* ---------- Kirish (login) ---------- */
 const sessions = new Map(); // token -> amal qilish muddati
@@ -169,28 +256,36 @@ async function api(req, res, parts) {
 
   // Aloqa formasi (hamma yubora oladi)
   if (m === "POST" && a === "messages" && !b) {
-    const { name, who, text, contactType, contact } = await readBody(req, 20000);
+    const { name, who, text, contactType, contact, source } = await readBody(req, 20000);
     if (!String(name || "").trim() || !String(text || "").trim()) return send(res, 400, { error: "Ismingiz va xabaringizni yozing" });
     const type = ["phone", "telegram", "email"].includes(contactType) ? contactType : null;
     const cleaned = type ? cleanContact(type, contact) : null;
     if (!cleaned) return send(res, 400, { error: type === "phone" ? "Telefon raqamini to'g'ri yozing, masalan: +998 90 123 45 67" : type === "telegram" ? "Telegram username'ni to'g'ri yozing, masalan: @aziz_karimov" : type === "email" ? "Gmail manzilini to'g'ri yozing, masalan: aziz@gmail.com" : "Siz bilan qanday bog'lanishimizni tanlang" });
     if (DATA.messages.length >= 1000) DATA.messages.shift();
     const code = newCode();
-    DATA.messages.push({ id: newId(), code, name: String(name).trim().slice(0, 100), who: String(who || "Boshqa").slice(0, 40), text: String(text).trim().slice(0, 3000), contactType: type, contact: cleaned, at: new Date().toISOString(), read: false, answer: "", answeredAt: null });
+    DATA.messages.push({ id: newId(), code, name: String(name).trim().slice(0, 100), who: String(who || "Boshqa").slice(0, 40), text: String(text).trim().slice(0, 3000), contactType: type, contact: cleaned, at: new Date().toISOString(), read: false, answer: "", answeredAt: null, source: source === "chat" ? "chat" : "form" });
     await save();
     return send(res, 200, { ok: true, code });
   }
 
-  // Javobni so'rov raqami orqali ko'rish (hamma uchun ochiq, lekin shaxsiy ma'lumot qaytarilmaydi)
-  if (m === "GET" && a === "answer" && b) {
-    const ip = req.socket.remoteAddress, now = Date.now();
-    const t = checkTries.get(ip) || { n: 0, reset: now + 60000 };
-    if (now > t.reset) { t.n = 0; t.reset = now + 60000; }
-    if (++t.n > 20) { checkTries.set(ip, t); return send(res, 429, { error: "Juda ko'p urinish. Bir daqiqadan keyin qayta urinib ko'ring." }); }
-    checkTries.set(ip, t);
-    const msg = DATA.messages.find(x => x.code && x.code === String(b).toUpperCase().replace(/[^A-Z0-9]/g, ""));
-    if (!msg) return send(res, 404, { error: "Bunday so'rov raqami topilmadi. Raqamni tekshirib qayta yozing." });
-    return send(res, 200, { code: msg.code, text: msg.text, at: msg.at, answer: msg.answer || "", answeredAt: msg.answeredAt || null });
+  // Sun'iy intellekt: holati
+  if (m === "GET" && a === "chat" && b === "status") return send(res, 200, { enabled: !!GEMINI_API_KEY });
+
+  // Sun'iy intellekt: saytdagi chat (hamma uchun)
+  if (m === "POST" && a === "chat" && !b) {
+    if (!GEMINI_API_KEY) return send(res, 503, { error: "AI yordamchi hozircha ulanmagan. Savolingizni ma'muriyatga yuboring." });
+    if (chatLimited(clientIp(req))) return send(res, 429, { error: "Juda ko'p savol berildi. Bir oz kutib, qayta urinib ko'ring yoki savolni ma'muriyatga yuboring." });
+    const { messages } = await readBody(req, 30000);
+    const turns = (Array.isArray(messages) ? messages : []).slice(-10)
+      .map(t => ({ role: t.role === "bot" ? "model" : "user", text: String(t.text || "").slice(0, 1000).trim() })).filter(t => t.text);
+    while (turns.length && turns[0].role !== "user") turns.shift();
+    if (!turns.length || turns[turns.length - 1].role !== "user") return send(res, 400, { error: "Savolingizni yozing" });
+    try {
+      let reply = await gemini(CHAT_SYSTEM(), turns, { maxTokens: 500, temperature: 0.2 });
+      const handoff = /\[MUROJAAT\]/i.test(reply);
+      reply = reply.replace(/\[MUROJAAT\]/gi, "").replace(/[*#`]/g, "").trim();
+      return send(res, 200, { reply, handoff });
+    } catch (e) { return send(res, e.status || 502, { error: e.error || "AI javob bermadi" }); }
   }
 
   // Login
@@ -219,6 +314,18 @@ async function api(req, res, parts) {
   if (!isAdmin(req)) return send(res, 401, { error: "Avval admin panelga kiring" });
 
   if (m === "GET" && a === "admin") return send(res, 200, DATA);
+
+  // Sun'iy intellekt: admin uchun matn qoralamasi
+  if (m === "POST" && a === "ai" && b === "draft") {
+    const { kind, input } = await readBody(req, 20000);
+    const inp = String(input || "").slice(0, 4000).trim();
+    if (!inp) return send(res, 400, { error: "Avval asosiy ma'lumotni yozing" });
+    const sys = kind === "reply"
+      ? `Sen 356-maktab ma'muriyati nomidan ota-ona yoki o'quvchining savoliga javob qoralamasini yozasan. O'zbek tilida (lotin), xushmuomala, 2–5 gap. Salomlashish va imzo YOZMA (ular avtomatik qo'shiladi). Faqat MAKTAB MA'LUMOTLARIDA bor faktlardan foydalan; aniq ma'lumot bo'lmasa, o'rniga [ANIQLASHTIRING: ...] deb belgi qo'y, o'zingdan to'qima. Markdown ishlatma.\n\nMAKTAB MA'LUMOTLARI:\n${siteKnowledge()}`
+      : `Sen 356-maktab saytiga yangilik yozasan. Berilgan sarlavha va qisqa ma'lumot asosida o'zbek tilida (lotin) chiroyli, rasmiy-samimiy yangilik matnini yoz: 3–6 gap, bitta xatboshi. Faqat berilgan faktlardan foydalan, yangi ism, sana, raqam yoki joy qo'shma. Markdown, sarlavha va emoji ishlatma.`;
+    try { return send(res, 200, { text: (await gemini(sys, [{ role: "user", text: inp }], { maxTokens: 700, temperature: 0.5 })).replace(/[*#`]/g, "").trim() }); }
+    catch (e) { return send(res, e.status || 502, { error: e.error || "AI javob bermadi" }); }
+  }
 
   if (m === "PUT" && a === "settings") { DATA.settings = await readBody(req, 100000); await save(); return send(res, 200, DATA.settings); }
 
@@ -296,7 +403,8 @@ loadData().then(d => {
   server.listen(PORT, () => {
     console.log(`\n  Ma'lumotlar: ${mongo ? "MongoDB" : "data/data.json fayli"}`);
     console.log(`  356-maktab sayti:  http://localhost:${PORT}`);
-    console.log(`  Admin panel:       http://localhost:${PORT}/admin\n`);
+    console.log(`  Admin panel:       http://localhost:${PORT}/admin`);
+    console.log(`  AI yordamchi:      ${GEMINI_API_KEY ? "ulangan" : "ulanmagan (GEMINI_API_KEY yo'q)"}\n`);
     if (ADMIN_PASSWORD === "maktab356") console.log("  Diqqat: standart parol (maktab356) ishlatilmoqda. README.md dagi ko'rsatma bo'yicha o'zgartiring.\n");
   });
 }).catch(err => {

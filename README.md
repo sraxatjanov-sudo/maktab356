@@ -5,7 +5,8 @@ Toshkent shahri, Yangi hayot tumani, Yangi Darxon mahallasidagi 356-maktabning r
 Muallif: **Raxatjanov Shoxrux**
 
 - **Sayt**: yangiliklar, o'quvchilar yutuqlari, maktab tarixi, ustozlar, galereya, aloqa formasi
-- **Admin panel** (`/admin`): parol bilan kiriladi. Yangilik, yutuq, ustoz, tadbir va rasmlarni qo'shish, o'zgartirish, o'chirish; saytdan kelgan xabarlarni o'qish.
+- **Admin panel** (`/admin`): parol bilan kiriladi. Yangilik, yutuq, ustoz, tadbir, rasm, maktab haqida va direktor ma'lumotlarini boshqarish; saytdan kelgan savollarga javob berish.
+- **AI yordamchi** (Google Gemini): saytdagi chat ota-onalar savollariga sayt ma'lumotlari asosida javob beradi; javob topilmasa, savol admin panelga yuboriladi. Admin panelda AI javob va yangilik qoralamalarini yozib beradi.
 
 ---
 
@@ -65,6 +66,7 @@ Kompyuterda `npm install` shart emas. Ma'lumotlar `data/data.json` faylida, rasm
    |---|---|
    | `MONGODB_URI` | 2.1-bosqichdagi havola |
    | `ADMIN_PASSWORD` | admin panel uchun o'zingiz o'ylagan kuchli parol |
+   | `GEMINI_API_KEY` | AI yordamchi uchun kalit (2.5-bo'limga qarang). Bo'lmasa, chat savollarni to'g'ridan-to'g'ri ma'muriyatga yuboradi |
 5. **Create Web Service** → bir necha daqiqa kuting. Logda `Ma'lumotlar: MongoDB` yozuvi chiqsa, hammasi joyida.
 6. Render bergan manzil (masalan, `https://maktab356.onrender.com`) — bu sizning saytingiz, admin panel esa `https://maktab356.onrender.com/admin`.
 
@@ -75,6 +77,17 @@ Birinchi ishga tushishda `data/seed.json` dagi ma'lumotlar MongoDB'ga avtomatik 
 - **Bepul Render** 15 daqiqa hech kim kirmasa "uxlab qoladi". Keyingi safar ochilishi 30–60 soniya oladi, keyin tez ishlaydi.
 - **Kodni o'zgartirsangiz:** GitHub'ga yuklang, Render o'zi yangilaydi. Ma'lumotlar MongoDB'da bo'lgani uchun o'chib ketmaydi.
 - **Parol** faqat Render sozlamalarida turadi. Kodni hamma ko'rsa ham, parolsiz admin panelga kirib bo'lmaydi.
+
+### 2.5. AI yordamchini ulash (Google Gemini, bepul)
+
+1. https://aistudio.google.com/apikey saytiga Google hisobingiz bilan kiring.
+2. **Create API key** → kalitni nusxalang.
+3. Render → xizmatingiz → **Environment** → **Add Environment Variable**:
+   `GEMINI_API_KEY` = nusxalangan kalit → **Save Changes**.
+4. 2–3 daqiqadan keyin Render logida `AI yordamchi: ulangan` yozuvi chiqadi.
+
+> Kalitni hech kimga bermang va GitHub'ga yozmang. Bepul tarifda Google so'rovlardan o'z xizmatlarini yaxshilash uchun foydalanishi mumkin, shuning uchun chatda shaxsiy ma'lumot yozilmasligi so'raladi.
+> Model nomini o'zgartirish kerak bo'lsa: `GEMINI_MODEL` (masalan `gemini-2.5-flash`).
 
 ---
 
